@@ -56,20 +56,8 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         List<ChessMove> legalMoves = new ArrayList<>();
-        if (type == PieceType.KING) {
-
-        } else if (type == PieceType.QUEEN) {
-
-        } else if (type == PieceType.BISHOP) {
-
-        } else if (type == PieceType.KNIGHT) {
-
-        } else if (type == PieceType.ROOK) {
-
-        } else {
-
-        }
-        return List.of();
+        new MoveCalc(board, myPosition, legalMoves, pieceColor, type);
+        return legalMoves;
     }
 
     @Override
