@@ -72,11 +72,20 @@ public class ChessPiece {
                 new RookMoveCalc(board, myPosition, legalMoves).moveStraight();
                 break;
             case PAWN:
+                new PawnMoveCalc(board, myPosition, legalMoves).movePawn();
                 break;
             case null, default:
                 break;
         }
         return legalMoves;
+    }
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "pieceColor=" + pieceColor +
+                ", type=" + type +
+                '}';
     }
 
     @Override
