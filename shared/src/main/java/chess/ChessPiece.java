@@ -68,6 +68,7 @@ public class ChessPiece {
                 new BishopMoveCalc(board, myPosition, legalMoves).moveDiagonal();
                 break;
             case KNIGHT:
+                new KnightMoveCalc(board, myPosition, legalMoves).moveKnight();
                 break;
             case ROOK:
                 new RookMoveCalc(board, myPosition, legalMoves).moveStraight();
