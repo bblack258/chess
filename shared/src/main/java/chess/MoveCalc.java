@@ -21,9 +21,9 @@ public class MoveCalc {
     }
 
     public void moveStraight() {
-        for (int i = -7; i < 8; i++) {
+        for (int i = 0; i < 8; i++) {
             ChessPosition endPosition = new ChessPosition(myPosition.getRow() + i, myPosition.getColumn());
-            if (myPosition.getRow() + i > 0 && myPosition.getRow() + i <= 8 && !isBlocked(endPosition)) {
+            if (myPosition.getRow() + i <= 8 && !isBlocked(endPosition)) {
                 legalMoves.add(new ChessMove(myPosition,endPosition,null));
                 if (canTake(endPosition)){
                     break;
@@ -32,9 +32,31 @@ public class MoveCalc {
                 break;
             }
         }
-        for (int i = -7; i < 8; i++) {
+        for (int i = 0; i < 8; i++) {
             ChessPosition endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn() + i);
-            if (myPosition.getColumn() + i > 0 && myPosition.getColumn() + i <= 8 && !isBlocked(endPosition)) {
+            if (myPosition.getColumn() + i <= 8 && !isBlocked(endPosition)) {
+                legalMoves.add(new ChessMove(myPosition,endPosition,null));
+                if (canTake(endPosition)){
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        for (int i = 0; i < 8; i++) {
+            ChessPosition endPosition = new ChessPosition(myPosition.getRow() - i, myPosition.getColumn());
+            if (myPosition.getRow() - i > 0 && !isBlocked(endPosition)) {
+                legalMoves.add(new ChessMove(myPosition,endPosition,null));
+                if (canTake(endPosition)){
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        for (int i = 0; i < 8; i++) {
+            ChessPosition endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn() - i);
+            if (myPosition.getColumn() - i > 0 && !isBlocked(endPosition)) {
                 legalMoves.add(new ChessMove(myPosition,endPosition,null));
                 if (canTake(endPosition)){
                     break;

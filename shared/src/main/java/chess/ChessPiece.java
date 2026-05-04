@@ -56,7 +56,24 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         List<ChessMove> legalMoves = new ArrayList<>();
-        new MoveCalc(board, myPosition, legalMoves);
+
+        switch (type) {
+            case KING:
+                break;
+            case QUEEN:
+                break;
+            case BISHOP:
+                new BishopMoveCalc(board, myPosition, legalMoves).moveDiagonal();
+                break;
+            case KNIGHT:
+                break;
+            case ROOK:
+                break;
+            case PAWN:
+                break;
+            case null, default:
+                break;
+        }
         return legalMoves;
     }
 
