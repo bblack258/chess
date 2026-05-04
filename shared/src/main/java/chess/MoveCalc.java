@@ -3,85 +3,102 @@ package chess;
 import java.util.List;
 
 public class MoveCalc {
-    // This is a class to help calculate the legal moves a chess piece can make given a certain board and position
 
-    public MoveCalc(ChessBoard board, ChessPosition myPosition, List<ChessMove> legalMoves,
-             ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
-        switch (type) {
-            case KING:
+    /**
+     *  This is a parent class to help calculate the legal moves a chess piece can make given a certain board and position
+     */
 
-                break;
-            case QUEEN:
+    ChessPiece myPiece;
+    ChessBoard board;
+    ChessPosition myPosition;
+    List<ChessMove> legalMoves;
 
-                break;
-            case BISHOP:
-                for (int i = 1; i <= 8; i++) {
-                    if (myPosition.getRow() + i <= 8){
-                        bishopLoop1:
-                        if (myPosition.getColumn() + i <= 8){
-                            ChessPiece other = board.getPiece(new ChessPosition(myPosition.getRow() + i, myPosition.getColumn() + i));
-                            if (other != null && other.getPieceType() == type) {
-                                break bishopLoop1;
-                            }
-                            legalMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + i,
-                                    myPosition.getColumn() + i), null));
-                            if (other != null && other.getPieceType() != type) {
-                                break bishopLoop1; // What we need to do here is break out of the for loop not the if statement. Maybe do multiple for loops?
-                            }
-                        }
-                        bishopLoop2:
-                        if (myPosition.getColumn() - i > 0){
-                            ChessPiece other = board.getPiece(new ChessPosition(myPosition.getRow() + i, myPosition.getColumn() - i));
-                            if (other != null && other.getPieceType() == type) {
-                                break bishopLoop2;
-                            }
-                            legalMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + i,
-                                    myPosition.getColumn() - i), null));
-                            if (other != null && other.getPieceType() != type) {
-                                break bishopLoop2;
-                            }
-                        }
-                    }
-                    if (myPosition.getRow() - i > 0){
-                        bishopLoop3:
-                        if (myPosition.getColumn() + i <= 8){
-                            ChessPiece other = board.getPiece(new ChessPosition(myPosition.getRow() - i, myPosition.getColumn() + i));
-                            if (other != null && other.getPieceType() == type) {
-                                break bishopLoop3;
-                            }
-                            legalMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() - i,
-                                    myPosition.getColumn() + i), null));
-                            if (other != null && other.getPieceType() != type) {
-                                break bishopLoop3;
-                            }
-                        }
-                        bishopLoop4:
-                        if (myPosition.getColumn() - i > 0){
-                            ChessPiece other = board.getPiece(new ChessPosition(myPosition.getRow() - i, myPosition.getColumn() - i));
-                                if (other != null && other.getPieceType() == type) {
-                                break bishopLoop4;
-                            }
-                            legalMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() - i,
-                                    myPosition.getColumn() - i), null));
-                            if (other != null && other.getPieceType() != type) {
-                                break bishopLoop4;
-                            }
-                        }
-                    }
+    public MoveCalc(ChessBoard board, ChessPosition myPosition, List<ChessMove> legalMoves) {
+        myPiece = board.getPiece(myPosition);
+        this.board = board;
+        this.myPosition = myPosition;
+        this.legalMoves = legalMoves;
+    }
+
+    public void moveStraight() {
+        for (int i = -7; i < 8; i++) {
+            ChessPosition endPosition = new ChessPosition(myPosition.getRow() + i, myPosition.getColumn());
+            if (myPosition.getRow() + i > 0 && myPosition.getRow() + i <= 8 && !isBlocked(endPosition)) {
+                legalMoves.add(new ChessMove(myPosition,endPosition,null));
+                if (canTake(endPosition)){
+                    break;
                 }
+            } else {
                 break;
-            case KNIGHT:
-
-                break;
-            case ROOK:
-
-                break;
-            case PAWN:
-
-                break;
-            case null, default:
-
-                break;
+            }
         }
+        for (int i = -7; i < 8; i++) {
+            ChessPosition endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn() + i);
+            if (myPosition.getColumn() + i > 0 && myPosition.getColumn() + i <= 8 && !isBlocked(endPosition)) {
+                legalMoves.add(new ChessMove(myPosition,endPosition,null));
+                if (canTake(endPosition)){
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+    }
+
+    public void moveDiagonal() {
+        for (int i = 0; i < 8; i++) {
+            ChessPosition endPosition = new ChessPosition(myPosition.getRow() + i, myPosition.getColumn() + i);
+            if (myPosition.getRow() + i <= 8 && myPosition.getColumn() + i <= 8 && !isBlocked(endPosition)) {
+                legalMoves.add(new ChessMove(myPosition,endPosition,null));
+                if (canTake(endPosition)){
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        for (int i = 0; i < 8; i++) {
+            ChessPosition endPosition = new ChessPosition(myPosition.getRow() + i, myPosition.getColumn() - i);
+            if (myPosition.getRow() + i <= 8 && myPosition.getColumn() - i > 0 && !isBlocked(endPosition)) {
+                legalMoves.add(new ChessMove(myPosition,endPosition,null));
+                if (canTake(endPosition)){
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        for (int i = 0; i < 8; i++) {
+            ChessPosition endPosition = new ChessPosition(myPosition.getRow() - i, myPosition.getColumn() + i);
+            if (myPosition.getRow() - i > 0 && myPosition.getColumn() + i <= 8 && !isBlocked(endPosition)) {
+                legalMoves.add(new ChessMove(myPosition,endPosition,null));
+                if (canTake(endPosition)){
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        for (int i = 0; i < 8; i++) {
+            ChessPosition endPosition = new ChessPosition(myPosition.getRow() - i, myPosition.getColumn() - i);
+            if (myPosition.getRow() - i > 0 && myPosition.getColumn() - i > 0 && !isBlocked(endPosition)) {
+                legalMoves.add(new ChessMove(myPosition,endPosition,null));
+                if (canTake(endPosition)){
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+    }
+
+    public boolean isBlocked(ChessPosition endPosition) {
+        ChessPiece other = board.getPiece(endPosition);
+        return other != null && other.getTeamColor() == myPiece.getTeamColor();
+    }
+
+    public boolean canTake(ChessPosition endPosition) {
+        ChessPiece other = board.getPiece(endPosition);
+        return other != null && other.getTeamColor() != myPiece.getTeamColor();
     }
 }

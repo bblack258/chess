@@ -56,7 +56,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         List<ChessMove> legalMoves = new ArrayList<>();
-        new MoveCalc(board, myPosition, legalMoves, pieceColor, type);
+        new MoveCalc(board, myPosition, legalMoves);
         return legalMoves;
     }
 
