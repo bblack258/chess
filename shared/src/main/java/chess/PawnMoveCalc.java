@@ -2,6 +2,10 @@ package chess;
 
 import java.util.List;
 
+/**
+ *  Child class of MoveCalc to help calculate the legal moves a pawn can make given a certain board and position
+ */
+
 public class PawnMoveCalc {
 
     ChessBoard board;
@@ -13,6 +17,10 @@ public class PawnMoveCalc {
         this.myPosition = myPosition;
         this.legalMoves = legalMoves;
     }
+
+    /**
+     * Public function to add the allowed moves for a pawn based on its color
+     */
 
     public void movePawn() {
         ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
@@ -28,6 +36,10 @@ public class PawnMoveCalc {
 
     }
 
+    /**
+     * Adds the allowed moves for a white pawn, excepting taking and promotions
+     */
+
     private void moveWhite() {
         if (myPosition.getRow() + 1 < 8 && board.getPiece(new ChessPosition(myPosition.getRow() + 1,
                 myPosition.getColumn())) == null ) {
@@ -40,6 +52,10 @@ public class PawnMoveCalc {
         }
     }
 
+    /**
+     * Adds the allowed moves for a black pawn, excepting taking and promotions
+     */
+
     private void moveBlack(){
         if (myPosition.getRow() - 1 > 1 && board.getPiece(new ChessPosition(myPosition.getRow() - 1,
                 myPosition.getColumn())) == null ) {
@@ -51,6 +67,10 @@ public class PawnMoveCalc {
             legalMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() - 2, myPosition.getColumn()),null));
         }
     }
+
+    /**
+     * Adds the allowed moves where a white pawn can take
+     */
 
     private void takeWhite() {
         ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();
@@ -77,6 +97,10 @@ public class PawnMoveCalc {
         }
     }
 
+    /**
+     * Adds the allowed moves where a black pawn can take
+     */
+
     private void takeBlack() {
         ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();
         ChessPiece otherL;
@@ -101,6 +125,10 @@ public class PawnMoveCalc {
             legalMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1),null));
         }
     }
+
+    /**
+     * Adds possible promotions for a white pawn, including taking
+     */
 
     private void promoteWhite() {
         if (myPosition.getRow() + 1 == 8) {
@@ -135,6 +163,10 @@ public class PawnMoveCalc {
             }
         }
     }
+
+    /**
+     * Adds possible promotions for a black pawn, including taking
+     */
 
     private void promoteBlack() {
         if (myPosition.getRow() - 1 == 1) {

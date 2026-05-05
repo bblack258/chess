@@ -3,11 +3,19 @@ package chess;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  Child class of MoveCalc to help calculate the legal moves a knight can make given a certain board and position
+ */
+
 public class KnightMoveCalc extends MoveCalc{
 
     public KnightMoveCalc(ChessBoard board, ChessPosition myPosition, List<ChessMove> legalMoves) {
         super(board, myPosition, legalMoves);
     }
+
+    /**
+     * Adds the possible moves for a knight, checking if each possible square is out-of-bounds or blocked
+     */
 
     public void moveKnight() {
         List<ChessPosition> moves = new ArrayList<>();

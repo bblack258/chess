@@ -2,11 +2,21 @@ package chess;
 
 import java.util.List;
 
+/**
+ *  Child class of MoveCalc to help calculate the legal moves a king can make given a certain board and position,
+ *  not including check, checkmate, and castling
+ */
+
 public class KingMoveCalc extends MoveCalc {
 
     public KingMoveCalc(ChessBoard board, ChessPosition myPosition, List<ChessMove> legalMoves) {
         super(board, myPosition, legalMoves);
     }
+
+    /**
+     * Adds the allowed moves for a king, checking each neighboring square to see if it's out-of-bounds or occupied by
+     * a piece from the same team
+     */
 
     public void moveKing() {
         ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();

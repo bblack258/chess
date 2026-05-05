@@ -11,6 +11,7 @@ import java.util.Objects;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
+
 public class ChessPiece {
 
     private final ChessGame.TeamColor pieceColor;
@@ -24,6 +25,7 @@ public class ChessPiece {
     /**
      * The various different chess piece options
      */
+
     public enum PieceType {
         KING,
         QUEEN,
@@ -36,6 +38,7 @@ public class ChessPiece {
     /**
      * @return Which team this chess piece belongs to
      */
+
     public ChessGame.TeamColor getTeamColor() {
         return pieceColor;
     }
@@ -43,6 +46,7 @@ public class ChessPiece {
     /**
      * @return which type of chess piece this piece is
      */
+
     public PieceType getPieceType() {
         return type;
     }
@@ -54,6 +58,7 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
+
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         List<ChessMove> legalMoves = new ArrayList<>();
 
