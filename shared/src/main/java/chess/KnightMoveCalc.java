@@ -3,7 +3,7 @@ package chess;
 import java.util.List;
 
 /**
- * Child class to extend MoveCalc for Knights
+ * Child class of MoveCalc to extend MoveCalc for Knights
  */
 
 public class KnightMoveCalc extends MoveCalc {
