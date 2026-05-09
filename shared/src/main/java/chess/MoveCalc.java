@@ -3,147 +3,152 @@ package chess;
 import java.util.List;
 
 /**
- *  Parent class to help calculate the legal moves a chess piece can make given a certain board and position
+ * Parent class to define basic functions of movement for multiple pieces
  */
 
 public class MoveCalc {
 
-    ChessPiece myPiece;
     ChessBoard board;
-    ChessPosition myPosition;
+    ChessPosition startPosition;
     List<ChessMove> legalMoves;
+    ChessPiece myPiece;
+    ChessGame.TeamColor myColor;
 
-    public MoveCalc(ChessBoard board, ChessPosition myPosition, List<ChessMove> legalMoves) {
-        myPiece = board.getPiece(myPosition);
+    public MoveCalc(ChessBoard board, ChessPosition startPosition, List<ChessMove> legalMoves) {
         this.board = board;
-        this.myPosition = myPosition;
+        this.startPosition = startPosition;
         this.legalMoves = legalMoves;
+        myPiece = board.getPiece(startPosition);
+        myColor = myPiece.getTeamColor();
     }
 
     /**
-     * Adds the legal moves for a piece moving only in straight lines either vertically or horizontally,
-     * stopping when blocked or taking
+     * Method to return legal moves in straight lines
      */
-
     public void moveStraight() {
         for (int i = 1; i < 8; i++) {
-            ChessPosition endPosition = new ChessPosition(myPosition.getRow() + i, myPosition.getColumn());
-            if (myPosition.getRow() + i <= 8 && notBlocked(endPosition)) {
-                legalMoves.add(new ChessMove(myPosition,endPosition,null));
-                if (canTake(endPosition)){
-                    break;
-                }
+            if (startPosition.getRow() + i <= 8 && notBlocked(new ChessPosition(startPosition.getRow() + i,
+                    startPosition.getColumn()))) {
+                legalMoves.add(new ChessMove(startPosition,new ChessPosition(startPosition.getRow() + i,
+                        startPosition.getColumn()),null));
             } else {
+                break;
+            }
+            if (canTake(new ChessPosition(startPosition.getRow() + i, startPosition.getColumn()))) {
                 break;
             }
         }
         for (int i = 1; i < 8; i++) {
-            ChessPosition endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn() + i);
-            if (myPosition.getColumn() + i <= 8 && notBlocked(endPosition)) {
-                legalMoves.add(new ChessMove(myPosition,endPosition,null));
-                if (canTake(endPosition)){
-                    break;
-                }
+            if (startPosition.getRow() - i >0 && notBlocked(new ChessPosition(startPosition.getRow() - i,
+                    startPosition.getColumn()))) {
+                legalMoves.add(new ChessMove(startPosition,new ChessPosition(startPosition.getRow() - i,
+                        startPosition.getColumn()),null));
             } else {
+                break;
+            }
+            if (canTake(new ChessPosition(startPosition.getRow() - i, startPosition.getColumn()))) {
                 break;
             }
         }
         for (int i = 1; i < 8; i++) {
-            ChessPosition endPosition = new ChessPosition(myPosition.getRow() - i, myPosition.getColumn());
-            if (myPosition.getRow() - i > 0 && notBlocked(endPosition)) {
-                legalMoves.add(new ChessMove(myPosition,endPosition,null));
-                if (canTake(endPosition)){
-                    break;
-                }
+            if (startPosition.getColumn() + i <= 8 && notBlocked(new ChessPosition(startPosition.getRow(),
+                    startPosition.getColumn() + i))) {
+                legalMoves.add(new ChessMove(startPosition,new ChessPosition(startPosition.getRow(),
+                        startPosition.getColumn() + i),null));
             } else {
+                break;
+            }
+            if (canTake(new ChessPosition(startPosition.getRow(), startPosition.getColumn() + i))) {
                 break;
             }
         }
         for (int i = 1; i < 8; i++) {
-            ChessPosition endPosition = new ChessPosition(myPosition.getRow(), myPosition.getColumn() - i);
-            if (myPosition.getColumn() - i > 0 && notBlocked(endPosition)) {
-                legalMoves.add(new ChessMove(myPosition,endPosition,null));
-                if (canTake(endPosition)){
-                    break;
-                }
+            if (startPosition.getColumn() - i > 0 && notBlocked(new ChessPosition(startPosition.getRow(),
+                    startPosition.getColumn() - i))) {
+                legalMoves.add(new ChessMove(startPosition,new ChessPosition(startPosition.getRow(),
+                        startPosition.getColumn() - i),null));
             } else {
+                break;
+            }
+            if (canTake(new ChessPosition(startPosition.getRow(), startPosition.getColumn() - i))) {
                 break;
             }
         }
     }
 
     /**
-     * Adds valid moves for a piece moving diagonally, stopping when blocked or taking
+     * Method to return legal moves in diagonal lines
      */
-
     public void moveDiagonal() {
         for (int i = 1; i < 8; i++) {
-            ChessPosition endPosition = new ChessPosition(myPosition.getRow() + i, myPosition.getColumn() + i);
-            if (myPosition.getRow() + i <= 8 && myPosition.getColumn() + i <= 8 && notBlocked(endPosition)) {
-                legalMoves.add(new ChessMove(myPosition,endPosition,null));
-                if (canTake(endPosition)){
-                    break;
-                }
+            if (startPosition.getRow() + i <= 8 && startPosition.getColumn() + i <= 8 && notBlocked(new ChessPosition(
+                    startPosition.getRow() + i, startPosition.getColumn() + i))) {
+                legalMoves.add(new ChessMove(startPosition,new ChessPosition(startPosition.getRow() + i,
+                        startPosition.getColumn() + i),null));
             } else {
+                break;
+            }
+            if (canTake(new ChessPosition(startPosition.getRow() + i, startPosition.getColumn() + i))) {
                 break;
             }
         }
         for (int i = 1; i < 8; i++) {
-            ChessPosition endPosition = new ChessPosition(myPosition.getRow() + i, myPosition.getColumn() - i);
-            if (myPosition.getRow() + i <= 8 && myPosition.getColumn() - i > 0 && notBlocked(endPosition)) {
-                legalMoves.add(new ChessMove(myPosition,endPosition,null));
-                if (canTake(endPosition)){
-                    break;
-                }
+            if (startPosition.getRow() + i <= 8 && startPosition.getColumn() - i > 0 && notBlocked(new ChessPosition(
+                    startPosition.getRow() + i, startPosition.getColumn() - i))) {
+                legalMoves.add(new ChessMove(startPosition,new ChessPosition(startPosition.getRow() + i,
+                        startPosition.getColumn() - i),null));
             } else {
+                break;
+            }
+            if (canTake(new ChessPosition(startPosition.getRow() + i, startPosition.getColumn() - i))) {
                 break;
             }
         }
         for (int i = 1; i < 8; i++) {
-            ChessPosition endPosition = new ChessPosition(myPosition.getRow() - i, myPosition.getColumn() + i);
-            if (myPosition.getRow() - i > 0 && myPosition.getColumn() + i <= 8 && notBlocked(endPosition)) {
-                legalMoves.add(new ChessMove(myPosition,endPosition,null));
-                if (canTake(endPosition)){
-                    break;
-                }
+            if (startPosition.getRow() - i > 0 && startPosition.getColumn() + i <= 8 && notBlocked(new ChessPosition(
+                    startPosition.getRow() - i, startPosition.getColumn() + i))) {
+                legalMoves.add(new ChessMove(startPosition,new ChessPosition(startPosition.getRow() - i,
+                        startPosition.getColumn() + i),null));
             } else {
+                break;
+            }
+            if (canTake(new ChessPosition(startPosition.getRow() - i, startPosition.getColumn() + i))) {
                 break;
             }
         }
         for (int i = 1; i < 8; i++) {
-            ChessPosition endPosition = new ChessPosition(myPosition.getRow() - i, myPosition.getColumn() - i);
-            if (myPosition.getRow() - i > 0 && myPosition.getColumn() - i > 0 && notBlocked(endPosition)) {
-                legalMoves.add(new ChessMove(myPosition,endPosition,null));
-                if (canTake(endPosition)){
-                    break;
-                }
+            if (startPosition.getRow() - i > 0 && startPosition.getColumn() - i > 0 && notBlocked(new ChessPosition(
+                    startPosition.getRow() - i, startPosition.getColumn() - i))) {
+                legalMoves.add(new ChessMove(startPosition,new ChessPosition(startPosition.getRow() - i,
+                        startPosition.getColumn() - i),null));
             } else {
+                break;
+            }
+            if (canTake(new ChessPosition(startPosition.getRow() - i, startPosition.getColumn() - i))) {
                 break;
             }
         }
     }
 
     /**
-     * Helper function to test if a space is blocked by a piece of the same color
+     * method to check that a square is not blocked
      *
-     * @param endPosition  final position of the piece in question
-     * @return             boolean describing if the square is blocked
+     * @param endPosition  the final position of the piece
+     * @return             returns whether the piece is blocked or not
      */
-
     public boolean notBlocked(ChessPosition endPosition) {
         ChessPiece other = board.getPiece(endPosition);
-        return other == null || other.getTeamColor() != myPiece.getTeamColor();
+        return other == null || other.getTeamColor() != myColor;
     }
 
     /**
-     * Helper function to test if a space is occupied by a piece of the opposite color that can be taken
+     * method to see if a piece on a given square can be taken
      *
-     * @param endPosition  final position of the piece in question
-     * @return             boolean describing if there is a piece in the square that can be taken
+     * @param endPosition  the final position of the piece
+     * @return             returns whether there is a piece that can be taken or not
      */
-
     public boolean canTake(ChessPosition endPosition) {
         ChessPiece other = board.getPiece(endPosition);
-        return other != null && other.getTeamColor() != myPiece.getTeamColor();
+        return other != null && other.getTeamColor() != myColor;
     }
 }

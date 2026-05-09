@@ -8,7 +8,7 @@ import java.util.List;
 
 public class RookMoveCalc extends MoveCalc{
 
-    public RookMoveCalc(ChessBoard board, ChessPosition myPosition, List<ChessMove> legalMoves) {
-        super(board, myPosition, legalMoves);
+    public RookMoveCalc(ChessBoard board, ChessPosition startPosition, List<ChessMove> legalMoves) {
+        super(board, startPosition, legalMoves);
     }
 }

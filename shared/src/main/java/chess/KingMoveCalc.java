@@ -19,55 +19,45 @@ public class KingMoveCalc extends MoveCalc {
      */
 
     public void moveKing() {
-        ChessGame.TeamColor myColor = board.getPiece(myPosition).getTeamColor();
-        ChessPiece other;
-        if (myPosition.getRow() - 1 > 0) {
-            other = board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn()));
-            if (other == null || other.getTeamColor() != myColor) {
-                legalMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn()), null));
-            }
+        if (startPosition.getRow() + 1 <= 8 && notBlocked(new ChessPosition(startPosition.getRow() + 1,
+                startPosition.getColumn()))) {
+            legalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() + 1,
+                    startPosition.getColumn()), null));
         }
-        if (myPosition.getRow() + 1 <= 8) {
-            other = board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn()));
-            if (other == null || other.getTeamColor() != myColor) {
-                legalMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn()), null));
-            }
+        if (startPosition.getRow() - 1 > 0 && notBlocked(new ChessPosition(startPosition.getRow() - 1,
+                startPosition.getColumn()))) {
+            legalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() - 1,
+                    startPosition.getColumn()), null));
         }
-        if (myPosition.getColumn() - 1 > 0) {
-            other = board.getPiece(new ChessPosition(myPosition.getRow(), myPosition.getColumn() - 1));
-            if (other == null || other.getTeamColor() != myColor) {
-                legalMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow(), myPosition.getColumn() - 1), null));
-            }
+        if (startPosition.getColumn() + 1 <= 8 && notBlocked(new ChessPosition(startPosition.getRow(),
+                startPosition.getColumn() + 1))) {
+            legalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow(),
+                    startPosition.getColumn() + 1), null));
         }
-        if (myPosition.getColumn() + 1 <= 8) {
-            other = board.getPiece(new ChessPosition(myPosition.getRow(), myPosition.getColumn() + 1));
-            if (other == null || other.getTeamColor() != myColor) {
-                legalMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow(), myPosition.getColumn() + 1), null));
-            }
+        if (startPosition.getColumn() - 1 > 0 && notBlocked(new ChessPosition(startPosition.getRow(),
+                startPosition.getColumn() - 1))) {
+            legalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow(),
+                    startPosition.getColumn() - 1), null));
         }
-        if (myPosition.getRow() - 1 > 0 && myPosition.getColumn() - 1 > 0) {
-            other = board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1));
-            if (other == null || other.getTeamColor() != myColor) {
-                legalMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1), null));
-            }
+        if (startPosition.getRow() + 1 <= 8 && startPosition.getColumn() + 1 <= 8 && notBlocked(new ChessPosition(
+                startPosition.getRow() + 1, startPosition.getColumn() + 1))) {
+            legalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() + 1,
+                    startPosition.getColumn() + 1), null));
         }
-        if (myPosition.getRow() + 1 <= 8 && myPosition.getColumn() - 1 > 0) {
-            other = board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1));
-            if (other == null || other.getTeamColor() != myColor) {
-                legalMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1), null));
-            }
+        if (startPosition.getRow() + 1 <= 8 && startPosition.getColumn() - 1 > 0 && notBlocked(new ChessPosition(
+                startPosition.getRow() + 1, startPosition.getColumn() - 1))) {
+            legalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() + 1,
+                    startPosition.getColumn() - 1), null));
         }
-        if (myPosition.getRow() - 1 > 0 && myPosition.getColumn() + 1 <= 8) {
-            other = board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1));
-            if (other == null || other.getTeamColor() != myColor) {
-                legalMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1), null));
-            }
+        if (startPosition.getRow() - 1 > 0 && startPosition.getColumn() + 1 <= 8 && notBlocked(new ChessPosition(
+                startPosition.getRow() - 1, startPosition.getColumn() + 1))) {
+            legalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() - 1,
+                    startPosition.getColumn() + 1), null));
         }
-        if (myPosition.getRow() + 1 <= 8 && myPosition.getColumn() + 1 <= 8) {
-            other = board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1));
-            if (other == null || other.getTeamColor() != myColor) {
-                legalMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1), null));
-            }
+        if (startPosition.getRow() - 1 > 0 && startPosition.getColumn() - 1 > 0 && notBlocked(new ChessPosition(
+                startPosition.getRow() - 1, startPosition.getColumn() - 1))) {
+            legalMoves.add(new ChessMove(startPosition, new ChessPosition(startPosition.getRow() - 1,
+                    startPosition.getColumn() - 1), null));
         }
     }
 }

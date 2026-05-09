@@ -16,8 +16,8 @@ public class QueenMoveCalc extends MoveCalc {
      * Add the allowed moves for a queen both in straight and diagonal paths
      */
 
-    public void queenMove() {
-        new MoveCalc(board, myPosition, legalMoves).moveStraight();
-        new MoveCalc(board, myPosition, legalMoves).moveDiagonal();
+    public void moveQueen() {
+        moveStraight();
+        moveDiagonal();
     }
 }
