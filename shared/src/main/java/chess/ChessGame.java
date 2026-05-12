@@ -18,6 +18,7 @@ public class ChessGame {
 
     public ChessGame() {
         board = new ChessBoard();
+        board.resetBoard();
         turn = TeamColor.WHITE;
     }
 
@@ -73,16 +74,14 @@ public class ChessGame {
             throw new InvalidMoveException("No piece at " + move.getStartPosition());
         }
         for (ChessMove myMove : validMoves(move.getStartPosition())) {
-            if (myMove == move) {
+            if (myMove.equals(move)) {
                 board.addPiece(move.getStartPosition(), null);
                 if (move.getPromotionPiece() == null) {
                     board.addPiece(move.getEndPosition(), myPiece);
-                    return;
                 } else {
                     board.addPiece(move.getEndPosition(), new ChessPiece(myPiece.getTeamColor(), move.getPromotionPiece()));
-                    return;
                 }
-
+                return;
             }
         }
         throw new InvalidMoveException("Not a valid move");
