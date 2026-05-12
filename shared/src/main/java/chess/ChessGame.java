@@ -12,7 +12,7 @@ import java.util.Objects;
 
 public class ChessGame {
 
-    private final ChessBoard board;
+    private ChessBoard board;
     private TeamColor turn;
 
 
@@ -73,6 +73,9 @@ public class ChessGame {
         if (myPiece == null) {
             throw new InvalidMoveException("No piece at " + move.getStartPosition());
         }
+        if (turn != myPiece.getTeamColor()) {
+            throw new InvalidMoveException(turn + "'s turn");
+        }
         for (ChessMove myMove : validMoves(move.getStartPosition())) {
             if (myMove.equals(move)) {
                 board.addPiece(move.getStartPosition(), null);
@@ -80,6 +83,11 @@ public class ChessGame {
                     board.addPiece(move.getEndPosition(), myPiece);
                 } else {
                     board.addPiece(move.getEndPosition(), new ChessPiece(myPiece.getTeamColor(), move.getPromotionPiece()));
+                }
+                if (turn == TeamColor.WHITE) {
+                    setTeamTurn(TeamColor.BLACK);
+                } else {
+                    setTeamTurn(TeamColor.WHITE);
                 }
                 return;
             }
@@ -128,7 +136,7 @@ public class ChessGame {
      */
 
     public void setBoard(ChessBoard board) {
-        board.resetBoard();
+        this.board = board;
     }
 
     /**
@@ -155,7 +163,8 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return Objects.equals(board, chessGame.board) && turn == chessGame.turn;
+        boolean test = board.equals(chessGame.getBoard());
+        return test && turn == chessGame.turn;
     }
 
     @Override
