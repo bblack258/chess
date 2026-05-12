@@ -59,7 +59,22 @@ public class ChessGame {
      */
 
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        return board.getPiece(startPosition).pieceMoves(board, startPosition);
+        ChessPiece myPiece = board.getPiece(startPosition);
+        Collection<ChessMove> myMoves = new ArrayList<>(board.getPiece(startPosition).pieceMoves(board, startPosition));
+        ChessBoard oldBoard = new ChessBoard(board);
+        Collection<ChessMove> illegalMoves = new ArrayList<>();
+
+        for (ChessMove move : myMoves) {
+            board.addPiece(move.getStartPosition(), null);
+            board.addPiece(move.getEndPosition(), myPiece);
+            if (isInCheck(myPiece.getTeamColor())) {
+                illegalMoves.add(move);
+            }
+            board = oldBoard;
+        }
+        myMoves.removeAll(illegalMoves);
+
+        return myMoves;
     }
 
     /**
@@ -123,6 +138,13 @@ public class ChessGame {
                 return true;
             }
         }
+        return false;
+    }
+
+    private boolean wouldBeInCheck(TeamColor teamColor, ChessMove move) {
+        ChessGame newGame = new ChessGame();
+        newGame.setBoard(board);
+
         return false;
     }
 
