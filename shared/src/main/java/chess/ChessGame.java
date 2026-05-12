@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -103,6 +104,25 @@ public class ChessGame {
      */
 
     public boolean isInCheck(TeamColor teamColor) {
+        ChessPosition teamKingPosition = null;
+        Collection<ChessMove> otherTeamMoves = new ArrayList<>();
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPiece myPiece = board.getPiece(new ChessPosition(i,j));
+                if (myPiece == null) {continue;}
+                if (myPiece.getPieceType() == ChessPiece.PieceType.KING && myPiece.getTeamColor() == teamColor) {
+                    teamKingPosition = new ChessPosition(i,j);
+                }
+                if (myPiece.getTeamColor() != teamColor) {
+                    otherTeamMoves.addAll(myPiece.pieceMoves(board, new ChessPosition(i,j)));
+                }
+            }
+        }
+        for (ChessMove move : otherTeamMoves) {
+            if (move.getEndPosition().equals(teamKingPosition)) {
+                return true;
+            }
+        }
         return false;
     }
 
