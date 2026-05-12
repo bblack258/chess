@@ -150,7 +150,16 @@ public class ChessGame {
      */
 
     public boolean isInCheckmate(TeamColor teamColor) {
-        return false;
+        Collection<ChessMove> myTeamMoves = new ArrayList<>();
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPiece myPiece = board.getPiece(new ChessPosition(i,j));
+                if (myPiece != null && myPiece.getTeamColor() == teamColor) {
+                    myTeamMoves.addAll(validMoves(new ChessPosition(i,j)));
+                }
+            }
+        }
+        return isInCheck(teamColor) && myTeamMoves.isEmpty();
     }
 
     /**
@@ -162,7 +171,20 @@ public class ChessGame {
      */
 
     public boolean isInStalemate(TeamColor teamColor) {
-        return false;
+        if (isInCheck(teamColor)) {
+            return false;
+        }
+        Collection<ChessMove> myTeamMoves = new ArrayList<>();
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPiece myPiece = board.getPiece(new ChessPosition(i,j));
+                if (myPiece == null) {continue;}
+                if (myPiece.getTeamColor() == teamColor) {
+                    myTeamMoves.addAll(validMoves(new ChessPosition(i,j)));
+                }
+            }
+        }
+        return myTeamMoves.isEmpty();
     }
 
     /**
