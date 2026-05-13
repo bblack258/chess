@@ -1,4 +1,4 @@
-package passoff.chess1.extracredit;
+package passoff.chess.extracredit;
 
 import chess.*;
 import org.junit.jupiter.api.Assertions;
