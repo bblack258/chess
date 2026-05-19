@@ -38,7 +38,7 @@ public class Server {
     }
 
     private void register(Context ctx) throws DataAccessException {
-        UserData user = new UserData(ctx.pathParam("username"),ctx.pathParam("password"),ctx.pathParam("email"));
+        UserData user = new Gson().fromJson(ctx.body(), UserData.class);
         AuthData auth = userService.register(user);
         //Don't forget to return the json
         ctx.status(200);
