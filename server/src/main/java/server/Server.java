@@ -29,6 +29,7 @@ public class Server {
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
         javalin.post("/user", this::register)
+                .post("/session", this::login)
                 .delete("/db", this::clear);
 
         // Register your endpoints and exception handlers here.
@@ -48,6 +49,15 @@ public class Server {
         UserData user = new Gson().fromJson(ctx.body(), UserData.class);
         AuthData auth = userService.register(user);
         //Don't forget to return the Json
+        ctx.status(200);
+        ctx.contentType("appliction/json");
+        ctx.result(new Gson().toJson(auth));
+    }
+
+    private void login(Context ctx) throws DataAccessException {
+        UserData user = new Gson().fromJson(ctx.body(), UserData.class);
+        AuthData auth = userService.login(user);
+
         ctx.status(200);
         ctx.contentType("appliction/json");
         ctx.result(new Gson().toJson(auth));

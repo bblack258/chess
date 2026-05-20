@@ -45,7 +45,7 @@ public class UserService {
         } else {
             throw new BadRequestException("Error: Invalid Username");
         }
-        if (Objects.equals(user.password(), r.password())) {
+        if (!Objects.equals(user.password(), r.password())) {
             throw new BadRequestException("Error: Invalid Password");
         }
 
