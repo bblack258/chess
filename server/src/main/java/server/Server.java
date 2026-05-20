@@ -7,12 +7,13 @@ import model.*;
 import service.*;
 import dataaccess.*;
 
+import java.util.List;
 import java.util.Map;
 
 public class Server {
 
     private final UserService userService;
-//    private final GameService gameService;
+    private final GameService gameService;
     private final ClearService clearService;
     private final Javalin javalin;
 
@@ -23,13 +24,16 @@ public class Server {
     public Server(UserDAO userMemory, AuthDAO authMemory, GameDAO gameMemory) {
 
         userService = new UserService(userMemory, authMemory);
-//        gameService
+        gameService = new GameService(userMemory, authMemory, gameMemory);
         clearService = new ClearService(userMemory, authMemory, gameMemory);
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
         javalin.post("/user", this::register)
                 .post("/session", this::login)
                 .delete("/session", this::logout)
+                .get("/game", this::list)
+                .post("/game", this::add)
+                .put("/game", this::join)
                 .delete("/db", this::clear)
                 .exception(DataAccessException.class, this::dataAccessExceptionHandler);
 
@@ -70,6 +74,34 @@ public class Server {
 
         ctx.status(200);
         ctx.contentType("application/json");
+    }
+
+    private void list(Context ctx) throws DataAccessException {
+        String authToken = ctx.header("Authorization");
+        List<GameData> games = gameService.listGames(authToken);
+
+        ctx.status(200);
+        ctx.contentType("application/json");
+        ctx.result(new Gson().toJson(games));
+    }
+
+    private void add(Context ctx) throws DataAccessException {
+        String authToken = ctx.header("Authorization");
+        String gameName = new Gson().fromJson(ctx.body(), String.class);
+        int gameID = gameService.addGame(authToken, gameName);
+
+        ctx.status(200);
+        ctx.contentType("application/json");
+        ctx.result(new Gson().toJson(gameID));
+    }
+
+    private void join(Context ctx) throws DataAccessException {
+        String authToken = ctx.header("Authorization");
+        joinRequest join = new Gson().fromJson(ctx.body(), joinRequest.class);
+        gameService.joinGame(authToken, join.playerColor(), join.gameID());
+
+        ctx.status(200);
+        ctx.contentType("appliction/json");
     }
 
     private void clear(Context ctx) {
