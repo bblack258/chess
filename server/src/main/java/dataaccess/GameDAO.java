@@ -7,8 +7,9 @@ import chess.ChessGame.TeamColor;
 
 public interface GameDAO {
     List<GameData> getGames(AuthData a);
+    GameData getGames(String gameName);
+    GameData getGames(int gameID);
     int addGame(String gameName);
     void updateGame(int gameID, TeamColor color, String username);
-    void updateGame(int gameID, String chessGame);
     void clearGames();
 }
