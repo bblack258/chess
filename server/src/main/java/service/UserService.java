@@ -38,15 +38,18 @@ public class UserService {
 
     public AuthData login(UserData r) throws DataAccessException {
 
-        UserData user = null;
+        UserData user;
 
-        if (r.username() != null && userMemory.getUser(r.username()) != null) {
+        if (r.username() == null || r.password() == null) {
+            throw new BadRequestException("Error: missing username");
+        }
+        if (userMemory.getUser(r.username()) != null) {
             user = userMemory.getUser(r.username());
         } else {
-            throw new BadRequestException("Error: Invalid Username");
+            throw new UnauthorizedRequestException("Error: Invalid Username");
         }
         if (!Objects.equals(user.password(), r.password())) {
-            throw new BadRequestException("Error: Invalid Password");
+            throw new UnauthorizedRequestException("Error: Invalid Password");
         }
 
         return authMemory.addAuth(r.username());
