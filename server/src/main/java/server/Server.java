@@ -57,6 +57,6 @@ public class Server {
         clearService.clearAll();
         ctx.status(200);
         ctx.contentType("appliction/json");
-        ctx.result(new Gson().toJson(List.of()));
+//        ctx.result(new Gson().toJson("{}"));
     }
 }
