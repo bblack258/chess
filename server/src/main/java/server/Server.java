@@ -1,12 +1,16 @@
 package server;
 
+import com.google.gson.stream.JsonReader;
 import io.javalin.*;
 import io.javalin.http.Context;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import model.*;
 import service.*;
 import dataaccess.*;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +57,7 @@ public class Server {
     private void register(Context ctx) throws DataAccessException {
         UserData user = new Gson().fromJson(ctx.body(), UserData.class);
         AuthData auth = userService.register(user);
-        //Don't forget to return the Json
+
         ctx.status(200);
         ctx.contentType("appliction/json");
         ctx.result(new Gson().toJson(auth));
@@ -87,16 +91,23 @@ public class Server {
 
     private void add(Context ctx) throws DataAccessException {
         String authToken = ctx.header("Authorization");
-        String gameName = new Gson().fromJson(ctx.body(), String.class);
-        int gameID = gameService.addGame(authToken, gameName);
-
+        System.out.println(ctx.body());
+        GameData game = new Gson().fromJson(ctx.body(), GameData.class);
+        int gameID = gameService.addGame(authToken, game.gameName());
         ctx.status(200);
         ctx.contentType("application/json");
-        ctx.result(new Gson().toJson(gameID));
+        ctx.result(new Gson().toJson(Map.of("gameID", gameID)));
     }
 
-    private void join(Context ctx) throws DataAccessException {
+    private void join(Context ctx) throws DataAccessException, IOException {
         String authToken = ctx.header("Authorization");
+        JsonReader reader = new JsonReader(new StringReader(ctx.body()));
+        reader.beginObject(); // switch to a try w/ resources
+        while (reader.hasNext()) {
+            String name = reader.nextName();
+            String join = reader.nextString();
+        }
+        reader.endObject();
         joinRequest join = new Gson().fromJson(ctx.body(), joinRequest.class);
         gameService.joinGame(authToken, join.playerColor(), join.gameID());
 

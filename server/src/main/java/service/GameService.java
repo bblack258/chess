@@ -19,6 +19,9 @@ public class GameService {
 
     public int addGame(String authToken, String gameName) throws DataAccessException {
         authorize(authToken);
+        if (gameName == null || gameName.isEmpty()) {
+            throw new BadRequestException("Error: bad request");
+        }
         if (gameMemory.getGames(gameName) != null) {
             throw new AlreadyExistsException("Error: game already exists");
         }
