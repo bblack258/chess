@@ -93,7 +93,7 @@ public class Server {
 
     private void join(Context ctx) throws DataAccessException {
         String authToken = ctx.header("Authorization");
-        joinRequest join = new Gson().fromJson(ctx.body(), joinRequest.class);
+        JoinRequest join = new Gson().fromJson(ctx.body(), JoinRequest.class);
         gameService.joinGame(authToken, join.playerColor(), join.gameID());
 
         ctx.status(200);
