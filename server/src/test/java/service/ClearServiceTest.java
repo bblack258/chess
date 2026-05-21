@@ -23,6 +23,7 @@ class ClearServiceTest {
         try {
             userMemory.addUser(new UserData(fakeUser, null, null ));
         } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         AuthData fakeAuth = authMemory.addAuth("username");
 
