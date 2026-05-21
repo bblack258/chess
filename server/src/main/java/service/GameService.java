@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.*;
 import model.*;
 
@@ -7,12 +8,10 @@ import java.util.List;
 
 public class GameService {
 
-    private final UserDAO userMemory;
     private final AuthDAO authMemory;
     private final GameDAO gameMemory;
 
-    public GameService(UserDAO userMemory, AuthDAO authMemory, GameDAO gameMemory) {
-        this.userMemory = userMemory;
+    public GameService(AuthDAO authMemory, GameDAO gameMemory) {
         this.authMemory = authMemory;
         this.gameMemory = gameMemory;
     }
@@ -31,20 +30,46 @@ public class GameService {
     public void joinGame(String authToken, String playerColor, int gameID) throws DataAccessException{
         authorize(authToken);
         if (gameMemory.getGames(gameID) == null) {
-            throw new DoesNotExistException("Error: game does not exist");
+            throw new BadRequestException("Error: game does not exist");
         }
+
+        AuthData auth = authMemory.getAuth(authToken);
         GameData game = gameMemory.getGames(gameID);
+
+        if (playerColor == null || playerColor.isEmpty()) {
+            throw new BadRequestException("Error: bad request");
+        }
+        if (playerColor.equalsIgnoreCase("WHITE")) {
+            if (colorNotTaken(ChessGame.TeamColor.WHITE, game)) {
+                gameMemory.updateGame(game.gameID(), ChessGame.TeamColor.WHITE, auth.username());
+            } else {
+                throw new AlreadyTakenException("Error: color already taken");
+            }
+        } else if (playerColor.equalsIgnoreCase("BLACK")) {
+            if (colorNotTaken(ChessGame.TeamColor.BLACK, game)) {
+                gameMemory.updateGame(game.gameID(), ChessGame.TeamColor.BLACK, auth.username());
+            } else {
+                throw new AlreadyTakenException("Error: color already taken");
+            }
+        } else {
+            throw new BadRequestException("Error: not a valid color");
+        }
 
     }
 
     public List<GameData> listGames(String authToken) throws DataAccessException {
         authorize(authToken);
-        return gameMemory.getGames(authMemory.getAuth(authToken));
+        return gameMemory.getGames();
     }
 
     private void authorize(String authToken) throws DataAccessException {
         if (authToken == null || authToken.isEmpty() || authMemory.getAuth(authToken) == null) {
             throw new UnauthorizedRequestException("Error: unauthorized");
         }
+    }
+
+    private boolean colorNotTaken(ChessGame.TeamColor color, GameData game) {
+        return (color == ChessGame.TeamColor.WHITE && game.whiteUsername() == null) ||
+                (color == ChessGame.TeamColor.BLACK && game.blackUsername() == null);
     }
 }

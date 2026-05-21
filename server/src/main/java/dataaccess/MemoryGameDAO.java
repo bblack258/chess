@@ -1,7 +1,6 @@
 package dataaccess;
 
 import chess.ChessGame;
-import model.AuthData;
 import model.GameData;
 
 import java.util.ArrayList;
@@ -13,14 +12,8 @@ public class MemoryGameDAO implements GameDAO {
     int gameID = 1;
 
     @Override
-    public List<GameData> getGames(AuthData a) {
-        List<GameData> myGames = new ArrayList<>();
-        for (GameData game : gameList) {
-            if (game.blackUsername().equals(a.username()) || game.whiteUsername().equals(a.username())) {
-                myGames.add(game);
-            }
-        }
-        return myGames;
+    public List<GameData> getGames() {
+        return gameList;
     }
 
     @Override
@@ -45,8 +38,8 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public int addGame(String gameName) {
-        gameList.add(new GameData(gameID++,null, null, gameName, new ChessGame()));
-        return gameID;
+        gameList.add(new GameData(gameID,null, null, gameName, new ChessGame()));
+        return gameID++;
     }
 
     @Override

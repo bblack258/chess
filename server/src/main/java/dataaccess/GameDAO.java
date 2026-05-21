@@ -2,11 +2,10 @@ package dataaccess;
 
 import java.util.List;
 import model.GameData;
-import model.AuthData;
 import chess.ChessGame.TeamColor;
 
 public interface GameDAO {
-    List<GameData> getGames(AuthData a);
+    List<GameData> getGames();
     GameData getGames(String gameName);
     GameData getGames(int gameID);
     int addGame(String gameName);

@@ -1,16 +1,12 @@
 package server;
 
-import com.google.gson.stream.JsonReader;
 import io.javalin.*;
 import io.javalin.http.Context;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import model.*;
 import service.*;
 import dataaccess.*;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +24,7 @@ public class Server {
     public Server(UserDAO userMemory, AuthDAO authMemory, GameDAO gameMemory) {
 
         userService = new UserService(userMemory, authMemory);
-        gameService = new GameService(userMemory, authMemory, gameMemory);
+        gameService = new GameService(authMemory, gameMemory);
         clearService = new ClearService(userMemory, authMemory, gameMemory);
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
@@ -86,28 +82,21 @@ public class Server {
 
         ctx.status(200);
         ctx.contentType("application/json");
-        ctx.result(new Gson().toJson(games));
+        ctx.result(Map.of("games", new Gson().toJson(games)).toString());
     }
 
     private void add(Context ctx) throws DataAccessException {
         String authToken = ctx.header("Authorization");
-        System.out.println(ctx.body());
         GameData game = new Gson().fromJson(ctx.body(), GameData.class);
         int gameID = gameService.addGame(authToken, game.gameName());
+
         ctx.status(200);
         ctx.contentType("application/json");
         ctx.result(new Gson().toJson(Map.of("gameID", gameID)));
     }
 
-    private void join(Context ctx) throws DataAccessException, IOException {
+    private void join(Context ctx) throws DataAccessException {
         String authToken = ctx.header("Authorization");
-        JsonReader reader = new JsonReader(new StringReader(ctx.body()));
-        reader.beginObject(); // switch to a try w/ resources
-        while (reader.hasNext()) {
-            String name = reader.nextName();
-            String join = reader.nextString();
-        }
-        reader.endObject();
         joinRequest join = new Gson().fromJson(ctx.body(), joinRequest.class);
         gameService.joinGame(authToken, join.playerColor(), join.gameID());
 
@@ -117,6 +106,7 @@ public class Server {
 
     private void clear(Context ctx) {
         clearService.clearAll();
+
         ctx.status(200);
         ctx.contentType("appliction/json");
     }
