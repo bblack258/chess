@@ -29,16 +29,15 @@ public class GameService {
 
     public void joinGame(String authToken, String playerColor, int gameID) throws DataAccessException{
         authorize(authToken);
-        if (gameMemory.getGames(gameID) == null) {
+        GameData game = gameMemory.getGames(gameID);
+        if (game == null) {
             throw new BadRequestException("Error: game does not exist");
         }
-
-        AuthData auth = authMemory.getAuth(authToken);
-        GameData game = gameMemory.getGames(gameID);
-
         if (playerColor == null || playerColor.isEmpty()) {
             throw new BadRequestException("Error: bad request");
         }
+
+        AuthData auth = authMemory.getAuth(authToken);
         if (playerColor.equalsIgnoreCase("WHITE")) {
             if (colorNotTaken(ChessGame.TeamColor.WHITE, game)) {
                 gameMemory.updateGame(game.gameID(), ChessGame.TeamColor.WHITE, auth.username());

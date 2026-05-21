@@ -22,7 +22,6 @@ public class Server {
     }
 
     public Server(UserDAO userMemory, AuthDAO authMemory, GameDAO gameMemory) {
-
         userService = new UserService(userMemory, authMemory);
         gameService = new GameService(authMemory, gameMemory);
         clearService = new ClearService(userMemory, authMemory, gameMemory);
@@ -36,9 +35,6 @@ public class Server {
                 .put("/game", this::join)
                 .delete("/db", this::clear)
                 .exception(DataAccessException.class, this::dataAccessExceptionHandler);
-
-        // Register your endpoints and exception handlers here.
-
     }
 
     public int run(int desiredPort) {

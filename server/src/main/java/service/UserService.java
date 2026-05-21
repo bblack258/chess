@@ -37,9 +37,7 @@ public class UserService {
     }
 
     public AuthData login(UserData r) throws DataAccessException {
-
         UserData user;
-
         if (r.username() == null || r.password() == null) {
             throw new BadRequestException("Error: missing username");
         }
@@ -51,7 +49,6 @@ public class UserService {
         if (!Objects.equals(user.password(), r.password())) {
             throw new UnauthorizedRequestException("Error: Invalid Password");
         }
-
         return authMemory.addAuth(r.username());
     }
 
