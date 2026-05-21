@@ -109,9 +109,9 @@ public class Server {
 
     private void dataAccessExceptionHandler(DataAccessException ex, Context ctx) {
         switch (ex) {
-            case BadRequestException _ -> ctx.status(400);
-            case UnauthorizedRequestException _ -> ctx.status(401);
-            case AlreadyTakenException _ -> ctx.status(403);
+            case BadRequestException ignored -> ctx.status(400);
+            case UnauthorizedRequestException ignored -> ctx.status(401);
+            case AlreadyTakenException ignored -> ctx.status(403);
             case null, default -> ctx.status(500);
         }
         ctx.contentType("application/json");
