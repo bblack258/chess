@@ -78,7 +78,7 @@ public class Server {
 
         ctx.status(200);
         ctx.contentType("application/json");
-        ctx.result(Map.of("games", new Gson().toJson(games)).toString());
+        ctx.result(new Gson().toJson(Map.of("games", games)));
     }
 
     private void add(Context ctx) throws DataAccessException {
