@@ -3,6 +3,8 @@ package dataaccess;
 import model.UserData;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class MySQLUserDAO implements UserDAO {
@@ -16,18 +18,50 @@ public class MySQLUserDAO implements UserDAO {
     }
 
     @Override
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT password, email FROM user WHERE username=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        String password = rs.getString("password");
+                        String email = rs.getString("email");
+                        return new UserData(username, password, email);
+                    }
+                }
+            }
+        } catch (SQLException | DataAccessException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
         return null;
     }
 
     @Override
-    public void addUser(UserData u) throws AlreadyTakenException {
-
+    public void addUser(UserData u) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, u.username());
+                ps.setString(2, u.password()); // Come back and hash the password
+                ps.setString(3, u.email());
+                ps.executeUpdate();
+            }
+        } catch (SQLException | DataAccessException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
     }
 
     @Override
-    public void clearUsers() {
-
+    public void clearUsers() throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "TRUNCATE user";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.executeUpdate();
+            }
+        } catch (SQLException | DataAccessException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
     }
 
 

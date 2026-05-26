@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 
@@ -17,8 +18,13 @@ public class ClearService {
     }
 
     public void clearAll() {
-        userMemory.clearUsers();
-        authMemory.clearAuth();
-        gameMemory.clearGames();
+        try {
+            userMemory.clearUsers();
+            authMemory.clearAuth();
+            gameMemory.clearGames();
+        } catch (DataAccessException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+
     }
 }

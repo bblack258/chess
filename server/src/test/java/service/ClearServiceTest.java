@@ -19,13 +19,14 @@ class ClearServiceTest {
         final GameDAO gameMemory = new MemoryGameDAO();
 
         final String fakeUser = "username";
+        AuthData fakeAuth;
 
         try {
             userMemory.addUser(new UserData(fakeUser, null, null ));
+            fakeAuth = authMemory.addAuth("username");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        AuthData fakeAuth = authMemory.addAuth("username");
 
         ClearService clear = new ClearService(userMemory, authMemory, gameMemory);
         clear.clearAll();
@@ -33,7 +34,11 @@ class ClearServiceTest {
         List<GameData> actualGame = gameMemory.getGames();
         assertEquals(expectedGame, actualGame);
 
-        assertNull(userMemory.getUser(fakeUser));
+        try {
+            assertNull(userMemory.getUser(fakeUser));
+        } catch (DataAccessException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
 
         assertNull(authMemory.getAuth(fakeAuth.authToken()));
     }

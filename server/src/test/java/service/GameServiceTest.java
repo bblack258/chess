@@ -22,7 +22,11 @@ class GameServiceTest {
     void setup() {
         authMemory = new MemoryAuthDAO();
         gameMemory = new MemoryGameDAO();
-        auth = authMemory.addAuth("username");
+        try {
+            auth = authMemory.addAuth("username");
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         service = new GameService(authMemory, gameMemory);
     }
 
