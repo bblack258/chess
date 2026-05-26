@@ -36,10 +36,9 @@ class ClearServiceTest {
 
         try {
             assertNull(userMemory.getUser(fakeUser));
+            assertNull(authMemory.getAuth(fakeAuth.authToken()));
         } catch (DataAccessException ex) {
             throw new RuntimeException(ex.getMessage());
         }
-
-        assertNull(authMemory.getAuth(fakeAuth.authToken()));
     }
 }

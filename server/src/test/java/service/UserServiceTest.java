@@ -81,10 +81,10 @@ class UserServiceTest {
         try {
             auth = service.register(newUser);
             service.logout(auth.authToken());
+            assertNull(authMemory.getAuth(auth.authToken()));
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-        assertNull(authMemory.getAuth(auth.authToken()));
     }
 
     @Test
