@@ -74,4 +74,50 @@ public class DatabaseManager {
         var port = Integer.parseInt(props.getProperty("db.port"));
         connectionUrl = String.format("jdbc:mysql://%s:%d", host, port);
     }
+
+    static private final String[] createStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS user (
+              id INT NOT NULL AUTO_INCREMENT,
+              username VARCHAR(256) NOT NULL,
+              password VARCHAR(256) NOT NULL,
+              email VARCHAR(256) NOT NULL,
+              PRIMARY KEY (id),
+              INDEX(username)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS auth (
+              id INT NOT NULL AUTO_INCREMENT,
+              username VARCHAR(256) NOT NULL,
+              authToken VARCHAR(256) NOT NULL,
+              PRIMARY KEY (id),
+              INDEX(authToken)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS game (
+              gameID INT NOT NULL,
+              whiteUsername VARCHAR(256) NOT NULL,
+              blackUsername VARCHAR(256) NOT NULL,
+              gameName VARCHAR(256) NOT NULL,
+              game TEXT NOT NULL,
+              PRIMARY KEY (gameID),
+              INDEX (gameName)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+    };
+
+    static public void configureDatabase() throws DataAccessException {
+        createDatabase();
+        try (Connection conn = getConnection()) {
+            for (String statement : createStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
+    }
 }

@@ -17,9 +17,7 @@ public class Server {
     private final ClearService clearService;
     private final Javalin javalin;
 
-    public Server() {
-        this(new MemoryUserDAO(), new MemoryAuthDAO(), new MemoryGameDAO());
-    }
+    public Server() { this(new MySQLUserDAO(), new MySQLAuthDAO(), new MySQLGameDAO()); }
 
     public Server(UserDAO userMemory, AuthDAO authMemory, GameDAO gameMemory) {
         userService = new UserService(userMemory, authMemory);
