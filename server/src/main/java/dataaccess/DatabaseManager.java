@@ -75,7 +75,7 @@ public class DatabaseManager {
         connectionUrl = String.format("jdbc:mysql://%s:%d", host, port);
     }
 
-    static private final String[] createStatements = {
+    static private final String[] CreateStatements = {
             """
             CREATE TABLE IF NOT EXISTS user (
               id INT NOT NULL AUTO_INCREMENT,
@@ -111,7 +111,7 @@ public class DatabaseManager {
     static public void configureDatabase() throws DataAccessException {
         createDatabase();
         try (Connection conn = getConnection()) {
-            for (String statement : createStatements) {
+            for (String statement : CreateStatements) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
                 }
