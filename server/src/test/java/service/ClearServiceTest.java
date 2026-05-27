@@ -29,7 +29,11 @@ class ClearServiceTest {
         }
 
         ClearService clear = new ClearService(userMemory, authMemory, gameMemory);
-        clear.clearAll();
+        try {
+            clear.clearAll();
+        } catch (DataAccessException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
 
         List<GameData> actualGame;
         try {

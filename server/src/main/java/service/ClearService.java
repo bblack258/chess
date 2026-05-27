@@ -17,13 +17,13 @@ public class ClearService {
         this.gameMemory = gameMemory;
     }
 
-    public void clearAll() {
+    public void clearAll() throws DataAccessException {
         try {
             userMemory.clearUsers();
             authMemory.clearAuth();
             gameMemory.clearGames();
         } catch (DataAccessException ex) {
-            throw new RuntimeException(ex.getMessage());
+            throw new DataAccessException(ex.getMessage());
         }
 
     }

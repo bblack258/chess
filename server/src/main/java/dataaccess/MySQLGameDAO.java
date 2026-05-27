@@ -19,7 +19,7 @@ public class MySQLGameDAO implements GameDAO {
         try {
             DatabaseManager.configureDatabase();
         } catch (DataAccessException ex) {
-            throw new RuntimeException("Unable to configure database");
+            throw new RuntimeException("Error: Unable to configure database");
         }
     }
 
@@ -36,7 +36,7 @@ public class MySQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
         return gameList;
     }
@@ -54,7 +54,7 @@ public class MySQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
         return null;
     }
@@ -72,7 +72,7 @@ public class MySQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
         return null;
     }
@@ -94,7 +94,7 @@ public class MySQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
         return 0;
     }
@@ -114,7 +114,7 @@ public class MySQLGameDAO implements GameDAO {
                 ps.executeUpdate();
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 
@@ -126,7 +126,7 @@ public class MySQLGameDAO implements GameDAO {
                 ps.executeUpdate();
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 

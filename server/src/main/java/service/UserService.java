@@ -4,7 +4,7 @@ import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 
-import java.util.Objects;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UserService {
 
@@ -30,7 +30,8 @@ public class UserService {
             throw new AlreadyTakenException("Error: Username already taken");
         }
 
-        UserData newUser = new UserData(r.username(), r.password(), r.email());
+        String hashPass = BCrypt.hashpw(r.password(), BCrypt.gensalt());
+        UserData newUser = new UserData(r.username(), hashPass, r.email());
         userMemory.addUser(newUser);
 
         return authMemory.addAuth(r.username());
@@ -46,7 +47,7 @@ public class UserService {
         } else {
             throw new UnauthorizedRequestException("Error: Invalid Username");
         }
-        if (!Objects.equals(user.password(), r.password())) {
+        if (!BCrypt.checkpw(r.password(), user.password())) {
             throw new UnauthorizedRequestException("Error: Invalid Password");
         }
         return authMemory.addAuth(r.username());

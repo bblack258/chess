@@ -14,7 +14,7 @@ public class MySQLAuthDAO implements AuthDAO {
         try {
             DatabaseManager.configureDatabase();
         } catch (DataAccessException ex) {
-            throw new RuntimeException("Unable to configure database");
+            throw new RuntimeException("Error: Unable to configure database");
         }
     }
 
@@ -31,7 +31,7 @@ public class MySQLAuthDAO implements AuthDAO {
                 }
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
         return null;
     }
@@ -47,7 +47,7 @@ public class MySQLAuthDAO implements AuthDAO {
                 ps.executeUpdate();
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
         return newData;
     }
@@ -61,7 +61,7 @@ public class MySQLAuthDAO implements AuthDAO {
                 ps.executeUpdate();
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 
@@ -73,7 +73,7 @@ public class MySQLAuthDAO implements AuthDAO {
                 ps.executeUpdate();
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 }

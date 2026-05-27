@@ -98,7 +98,7 @@ public class Server {
         ctx.contentType("appliction/json");
     }
 
-    private void clear(Context ctx) {
+    private void clear(Context ctx) throws DataAccessException {
         clearService.clearAll();
 
         ctx.status(200);

@@ -13,7 +13,7 @@ public class MySQLUserDAO implements UserDAO {
         try {
             DatabaseManager.configureDatabase();
         } catch (DataAccessException ex) {
-            throw new RuntimeException("Unable to configure database");
+            throw new RuntimeException("Error: Unable to configure database");
         }
     }
 
@@ -32,7 +32,7 @@ public class MySQLUserDAO implements UserDAO {
                 }
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
         return null;
     }
@@ -48,7 +48,7 @@ public class MySQLUserDAO implements UserDAO {
                 ps.executeUpdate();
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 
@@ -60,7 +60,7 @@ public class MySQLUserDAO implements UserDAO {
                 ps.executeUpdate();
             }
         } catch (SQLException | DataAccessException ex) {
-            throw new DataAccessException(ex.getMessage());
+            throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
 
