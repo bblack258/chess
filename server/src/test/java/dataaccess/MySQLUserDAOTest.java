@@ -55,17 +55,15 @@ class MySQLUserDAOTest {
 
     @Test
     void addUserCorrect() {
-        try {
+        try (Connection conn = DatabaseManager.getConnection()) {
             userMemory.addUser(new UserData("username", "password", "email"));
-            try (Connection conn = DatabaseManager.getConnection()) {
-                String statement = "Select password, email from user where username = ?";
-                try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                    ps.setString(1, "username");
-                    try (ResultSet rs = ps.executeQuery()) {
-                        if (rs.next()) {
-                            assertEquals("password", rs.getString("password"));
-                            assertEquals("email", rs.getString("email"));
-                        }
+            String statement = "Select password, email from user where username = ?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, "username");
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        assertEquals("password", rs.getString("password"));
+                        assertEquals("email", rs.getString("email"));
                     }
                 }
             }

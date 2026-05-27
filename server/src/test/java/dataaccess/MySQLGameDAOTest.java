@@ -68,19 +68,17 @@ class MySQLGameDAOTest {
 
     @Test
     void addGameCorrect() {
-        try {
+        try (Connection conn = DatabaseManager.getConnection()) {
             gameMemory.addGame("only");
-            try (Connection conn = DatabaseManager.getConnection()) {
-                String statement = "SELECT gameID, whiteUsername, blackUsername, game FROM game WHERE gameName = ?";
-                try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                    ps.setString(1, "only");
-                    try (ResultSet rs = ps.executeQuery()) {
-                        if (rs.next()) {
-                            assertEquals(myGame.gameID(), rs.getInt("gameID"));
-                            assertEquals(myGame.whiteUsername(), rs.getString("whiteUsername"));
-                            assertEquals(myGame.blackUsername(), rs.getString("blackUsername"));
-                            assertEquals(myGame.game(), new Gson().fromJson(rs.getString("game"), ChessGame.class));
-                        }
+            String statement = "SELECT gameID, whiteUsername, blackUsername, game FROM game WHERE gameName = ?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, "only");
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        assertEquals(myGame.gameID(), rs.getInt("gameID"));
+                        assertEquals(myGame.whiteUsername(), rs.getString("whiteUsername"));
+                        assertEquals(myGame.blackUsername(), rs.getString("blackUsername"));
+                        assertEquals(myGame.game(), new Gson().fromJson(rs.getString("game"), ChessGame.class));
                     }
                 }
             }
