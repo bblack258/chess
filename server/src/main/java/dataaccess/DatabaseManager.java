@@ -97,9 +97,9 @@ public class DatabaseManager {
             """,
             """
             CREATE TABLE IF NOT EXISTS game (
-              gameID INT NOT NULL,
-              whiteUsername VARCHAR(256) NOT NULL,
-              blackUsername VARCHAR(256) NOT NULL,
+              gameID INT NOT NULL AUTO_INCREMENT,
+              whiteUsername VARCHAR(256),
+              blackUsername VARCHAR(256),
               gameName VARCHAR(256) NOT NULL,
               game TEXT NOT NULL,
               PRIMARY KEY (gameID),

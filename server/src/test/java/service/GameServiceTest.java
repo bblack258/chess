@@ -20,8 +20,8 @@ class GameServiceTest {
 
     @BeforeEach
     void setup() {
-        authMemory = new MemoryAuthDAO();
-        gameMemory = new MemoryGameDAO();
+        authMemory = new MySQLAuthDAO();
+        gameMemory = new MySQLGameDAO();
         try {
             auth = authMemory.addAuth("username");
         } catch (DataAccessException e) {
@@ -33,7 +33,11 @@ class GameServiceTest {
     @Test
     void addGameCorrect() {
         List<GameData> expected = new ArrayList<>();
-        assertEquals(expected,gameMemory.getGames());
+        try {
+            assertEquals(expected, gameMemory.getGames());
+        } catch (DataAccessException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
         int gameID;
         try {
             gameID = service.addGame(auth.authToken(), "game1");
@@ -41,7 +45,11 @@ class GameServiceTest {
             throw new RuntimeException(e);
         }
         expected.add(new GameData(gameID, null, null, "game1", new ChessGame()));
-        assertEquals(expected, gameMemory.getGames());
+        try {
+            assertEquals(expected, gameMemory.getGames());
+        } catch (DataAccessException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
     }
 
     @Test
@@ -66,9 +74,13 @@ class GameServiceTest {
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-        assertEquals(auth.username(), gameMemory.getGames(gameID).whiteUsername());
-        assertNull(gameMemory.getGames(gameID).blackUsername());
-        assertEquals("game1", gameMemory.getGames(gameID).gameName());
+        try {
+            assertEquals(auth.username(), gameMemory.getGames(gameID).whiteUsername());
+            assertNull(gameMemory.getGames(gameID).blackUsername());
+            assertEquals("game1", gameMemory.getGames(gameID).gameName());
+        } catch (DataAccessException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
     }
 
     @Test

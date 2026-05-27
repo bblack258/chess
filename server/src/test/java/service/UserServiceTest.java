@@ -16,8 +16,8 @@ class UserServiceTest {
 
     @BeforeEach
     void setup() {
-        userMemory = new MemoryUserDAO();
-        authMemory = new MemoryAuthDAO();
+        userMemory = new MySQLUserDAO();
+        authMemory = new MySQLAuthDAO();
         service = new UserService(userMemory, authMemory);
         newUser = new UserData("username","password", "email");
     }

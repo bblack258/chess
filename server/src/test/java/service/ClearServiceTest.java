@@ -14,9 +14,9 @@ class ClearServiceTest {
     @Test
     void clearAll() {
         List<GameData> expectedGame = new ArrayList<>();
-        final UserDAO userMemory = new MemoryUserDAO();
-        final AuthDAO authMemory = new MemoryAuthDAO();
-        final GameDAO gameMemory = new MemoryGameDAO();
+        final UserDAO userMemory = new MySQLUserDAO();
+        final AuthDAO authMemory = new MySQLAuthDAO();
+        final GameDAO gameMemory = new MySQLGameDAO();
 
         final String fakeUser = "username";
         AuthData fakeAuth;
@@ -31,7 +31,12 @@ class ClearServiceTest {
         ClearService clear = new ClearService(userMemory, authMemory, gameMemory);
         clear.clearAll();
 
-        List<GameData> actualGame = gameMemory.getGames();
+        List<GameData> actualGame;
+        try {
+            actualGame = gameMemory.getGames();
+        } catch (DataAccessException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
         assertEquals(expectedGame, actualGame);
 
         try {

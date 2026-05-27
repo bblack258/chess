@@ -5,10 +5,10 @@ import model.GameData;
 import chess.ChessGame.TeamColor;
 
 public interface GameDAO {
-    List<GameData> getGames();
-    GameData getGames(String gameName);
-    GameData getGames(int gameID);
-    int addGame(String gameName);
-    void updateGame(int gameID, TeamColor color, String username);
-    void clearGames();
+    List<GameData> getGames() throws DataAccessException;
+    GameData getGames(String gameName) throws DataAccessException;
+    GameData getGames(int gameID) throws DataAccessException;
+    int addGame(String gameName) throws DataAccessException;
+    void updateGame(int gameID, TeamColor color, String username) throws DataAccessException;
+    void clearGames() throws DataAccessException;
 }
