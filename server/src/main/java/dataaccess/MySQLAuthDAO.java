@@ -30,7 +30,7 @@ public class MySQLAuthDAO implements AuthDAO {
                     }
                 }
             }
-        } catch (SQLException | DataAccessException ex) {
+        } catch (SQLException ex) {
             throw new DataAccessException("Error: " + ex.getMessage());
         }
         return null;
@@ -46,7 +46,7 @@ public class MySQLAuthDAO implements AuthDAO {
                 ps.setString(2, newData.authToken());
                 ps.executeUpdate();
             }
-        } catch (SQLException | DataAccessException ex) {
+        } catch (SQLException ex) {
             throw new DataAccessException("Error: " + ex.getMessage());
         }
         return newData;
@@ -60,7 +60,7 @@ public class MySQLAuthDAO implements AuthDAO {
                 ps.setString(1, authToken);
                 ps.executeUpdate();
             }
-        } catch (SQLException | DataAccessException ex) {
+        } catch (SQLException ex) {
             throw new DataAccessException("Error: " + ex.getMessage());
         }
     }

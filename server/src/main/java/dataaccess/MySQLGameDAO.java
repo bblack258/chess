@@ -35,7 +35,7 @@ public class MySQLGameDAO implements GameDAO {
                     }
                 }
             }
-        } catch (SQLException | DataAccessException ex) {
+        } catch (SQLException ex) {
             throw new DataAccessException("Error: " + ex.getMessage());
         }
         return gameList;
@@ -53,7 +53,7 @@ public class MySQLGameDAO implements GameDAO {
                     }
                 }
             }
-        } catch (SQLException | DataAccessException ex) {
+        } catch (SQLException ex) {
             throw new DataAccessException("Error: " + ex.getMessage());
         }
         return null;
@@ -71,7 +71,7 @@ public class MySQLGameDAO implements GameDAO {
                     }
                 }
             }
-        } catch (SQLException | DataAccessException ex) {
+        } catch (SQLException ex) {
             throw new DataAccessException("Error: " + ex.getMessage());
         }
         return null;
@@ -93,7 +93,7 @@ public class MySQLGameDAO implements GameDAO {
                     return rs.getInt(1);
                 }
             }
-        } catch (SQLException | DataAccessException ex) {
+        } catch (SQLException ex) {
             throw new DataAccessException("Error: " + ex.getMessage());
         }
         return 0;
@@ -105,15 +105,17 @@ public class MySQLGameDAO implements GameDAO {
             String statement;
             if (color == ChessGame.TeamColor.WHITE) {
                 statement = "UPDATE game SET whiteUsername = ? WHERE gameID = ?";
-            } else {
+            } else if (color == ChessGame.TeamColor.BLACK) {
                 statement = "UPDATE game SET blackUsername = ? WHERE gameID = ?";
+            } else {
+                throw new DataAccessException("Error: invalid team color");
             }
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setString(1, username);
                 ps.setInt(2, gameID);
                 ps.executeUpdate();
             }
-        } catch (SQLException | DataAccessException ex) {
+        } catch (SQLException ex) {
             throw new DataAccessException("Error: " + ex.getMessage());
         }
     }

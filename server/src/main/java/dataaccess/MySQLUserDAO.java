@@ -31,7 +31,7 @@ public class MySQLUserDAO implements UserDAO {
                     }
                 }
             }
-        } catch (SQLException | DataAccessException ex) {
+        } catch (SQLException ex) {
             throw new DataAccessException("Error: " + ex.getMessage());
         }
         return null;
@@ -47,7 +47,7 @@ public class MySQLUserDAO implements UserDAO {
                 ps.setString(3, u.email());
                 ps.executeUpdate();
             }
-        } catch (SQLException | DataAccessException ex) {
+        } catch (SQLException ex) {
             throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
@@ -59,7 +59,7 @@ public class MySQLUserDAO implements UserDAO {
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.executeUpdate();
             }
-        } catch (SQLException | DataAccessException ex) {
+        } catch (SQLException ex) {
             throw new DataAccessException("Error: " + ex.getMessage());
         }
     }
