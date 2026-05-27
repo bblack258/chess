@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.*;
 import model.*;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +21,16 @@ class UserServiceTest {
         authMemory = new MySQLAuthDAO();
         service = new UserService(userMemory, authMemory);
         newUser = new UserData("username","password", "email");
+    }
+
+    @AfterEach
+    void tearDown() {
+        try {
+            userMemory.clearUsers();
+            authMemory.clearAuth();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test

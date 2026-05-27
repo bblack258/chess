@@ -3,6 +3,7 @@ package service;
 import chess.ChessGame;
 import dataaccess.*;
 import model.*;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,6 +29,16 @@ class GameServiceTest {
             throw new RuntimeException(e);
         }
         service = new GameService(authMemory, gameMemory);
+    }
+
+    @AfterEach
+    void tearDown() {
+        try {
+            authMemory.clearAuth();
+            gameMemory.clearGames();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test

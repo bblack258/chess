@@ -18,11 +18,11 @@ class ClearServiceTest {
         final AuthDAO authMemory = new MySQLAuthDAO();
         final GameDAO gameMemory = new MySQLGameDAO();
 
-        final String fakeUser = "username";
+        final UserData fakeUser = new UserData("username", "password", "email" );
         AuthData fakeAuth;
 
         try {
-            userMemory.addUser(new UserData(fakeUser, null, null ));
+            userMemory.addUser(fakeUser);
             fakeAuth = authMemory.addAuth("username");
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -44,7 +44,7 @@ class ClearServiceTest {
         assertEquals(expectedGame, actualGame);
 
         try {
-            assertNull(userMemory.getUser(fakeUser));
+            assertNull(userMemory.getUser(fakeUser.username()));
             assertNull(authMemory.getAuth(fakeAuth.authToken()));
         } catch (DataAccessException ex) {
             throw new RuntimeException(ex.getMessage());
