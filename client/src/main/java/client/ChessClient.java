@@ -1,6 +1,7 @@
 package client;
 
 import dataaccess.DataAccessException;
+import model.UserData;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -63,8 +64,12 @@ public class ChessClient {
         }
     }
 
-    public String register(String... params) {
-        return null;
+    public String register(String... params) throws DataAccessException {
+        if (params.length >= 1) {
+            server.register(new UserData(params[0], params[1], params[2]));
+            state = State.LOGGED_IN;
+        }
+        return String.format("You have registered and logged in as %s", params[0]);
     }
 
     public String login(String... params) {
