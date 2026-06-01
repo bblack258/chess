@@ -1,12 +1,11 @@
 package client;
 
+import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import model.UserData;
+import model.*;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Scanner;
-import java.util.zip.DataFormatException;
 
 import static ui.EscapeSequences.*;
 
@@ -65,35 +64,69 @@ public class ChessClient {
     }
 
     public String register(String... params) throws DataAccessException {
-        if (params.length >= 1) {
-            server.register(new UserData(params[0], params[1], params[2]));
+        if (params.length >= 3) {
+            AuthData auth = server.register(new UserData(params[0], params[1], params[2]));
             state = State.LOGGED_IN;
+            return String.format("You have registered and logged in as %s", auth.username());
         }
-        return String.format("You have registered and logged in as %s", params[0]);
-    }
-
-    public String login(String... params) {
         return null;
     }
 
-    public String create(String... params) {
+    public String login(String... params) throws DataAccessException {
+        if (params.length >= 2) {
+            AuthData auth = server.login(new UserData(params[0], params[1], null));
+            state = State.LOGGED_IN;
+            return String.format("You have logged in as %s", auth.username());
+        }
         return null;
     }
 
-    public String list(String... params) {
-        return null;
+    public String create(String... params) throws DataAccessException {
+        isLoggedIn();
+        if (params.length >= 1) {
+            String game = server.create(params[0]);
+            return String.format("Created new game: %s", game);
+        }
+        return "Failed to create game";
     }
 
-    public String join(String... params) {
-        return null;
+    public String list(String... params) throws DataAccessException {
+        isLoggedIn();
+        GameList gameList = server.listGames();
+        StringBuilder list = new StringBuilder();
+        for (GameData game : gameList) {
+            list.append(new Gson().toJson(game)).append('\n');
+        }
+        return list.toString();
     }
 
-    public String observe(String... params) {
-        return null;
+    public String join(String... params) throws DataAccessException {
+        isLoggedIn();
+        if (params.length >= 2) {
+            int listID = Integer.parseInt(params[0]);
+            GameList gameList = server.listGames();
+            int gameID = gameList.get(listID - 1).gameID();
+            JoinRequest join = new JoinRequest(params[1].toUpperCase(), gameID);
+            server.join(join);
+            return String.format("Successfully joined game %d", listID);
+        }
+        return "Failed to join game";
     }
 
-    public String logout(String... params) {
-        return null;
+    public String observe(String... params) throws DataAccessException {
+        isLoggedIn();
+        if (params.length >= 2) {
+            int listID = Integer.parseInt(params[0]);
+            GameList gameList = server.listGames();
+            return gameList.get(listID - 1).game().toString();
+        }
+        return "Failed to observe";
+    }
+
+    public String logout(String... params) throws DataAccessException {
+        isLoggedIn();
+        server.logout();
+        return "You have logged out";
     }
 
     public String help() {
@@ -115,10 +148,9 @@ public class ChessClient {
                 """;
     }
 
-    private boolean isLoggedIn() throws DataAccessException {
+    private void isLoggedIn() throws DataAccessException {
         if (state != State.LOGGED_IN) {
             throw new DataAccessException("Error: you must be signed in");
         }
-        return true;
     }
 }
