@@ -3,6 +3,7 @@ package service;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;
+import dataaccesserrors.*;
 
 import org.mindrot.jbcrypt.BCrypt;
 

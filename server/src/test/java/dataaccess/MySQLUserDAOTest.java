@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.UserData;
+import dataaccesserrors.DataAccessException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

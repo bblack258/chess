@@ -1,7 +1,7 @@
 package client;
 
-import dataaccess.BadRequestException;
-import dataaccess.DataAccessException;
+import dataaccesserrors.BadRequestException;
+import dataaccesserrors.DataAccessException;
 import model.*;
 import ui.GenerateBoard;
 

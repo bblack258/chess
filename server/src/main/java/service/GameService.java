@@ -2,6 +2,7 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.*;
+import dataaccesserrors.*;
 import model.*;
 
 import java.util.List;

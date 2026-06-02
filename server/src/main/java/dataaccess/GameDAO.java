@@ -2,6 +2,7 @@ package dataaccess;
 
 import java.util.List;
 import model.GameData;
+import dataaccesserrors.*;
 import chess.ChessGame.TeamColor;
 
 public interface GameDAO {

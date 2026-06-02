@@ -20,7 +20,7 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public void addUser(UserData u) throws AlreadyTakenException {
+    public void addUser(UserData u) {
         userList.add(u);
     }
 

@@ -1,3 +1,3 @@
-package dataaccess;
+package dataaccesserrors;
 
 public record ErrorMessage(String message) {}
