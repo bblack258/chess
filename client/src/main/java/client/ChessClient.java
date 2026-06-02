@@ -23,13 +23,13 @@ public class ChessClient {
     }
 
     public void run() {
-        System.out.println("Welcome to the CS240 chess project. Type 'help' for ideas to start");
-        System.out.println(help());
+        System.out.println("Welcome to the CS240 chess project. Here are some ideas to start");
+        System.out.println(SET_TEXT_COLOR_BLUE + help());
 
         Scanner scanner = new Scanner(System.in);
         String result = "";
         while (!result.equals("quit")) {
-            System.out.println(SET_TEXT_COLOR_GREEN + "\n>>>");
+            System.out.print(SET_TEXT_COLOR_GREEN + "[" + state + "]" + " >>> ");
             String line = scanner.nextLine();
 
             try {
