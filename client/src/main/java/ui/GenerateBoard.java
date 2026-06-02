@@ -2,28 +2,25 @@ package ui;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
 import static ui.EscapeSequences.*;
+import static ui.EscapeSequences.BLACK_PAWN;
+import static ui.EscapeSequences.BLACK_ROOK;
 
 public class GenerateBoard {
 
     private static final int BOARD_SIDE_LENGTH_IN_SQUARES = 8;
-    private static final int SQUARE_SIZE_IN_PADDED_CHARS = 3;
     private static final int BORDER_SIZE_IN_SQUARES = 1;
 
     private static PrintStream out;
 
     public GenerateBoard() {
         out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-    }
-
-    public static void main(String[] args) {
-        GenerateBoard board = new GenerateBoard();
-
-        board.printBoard(new ChessBoard(), "White");
     }
 
     public void printBoard(ChessBoard board, String color) {
@@ -36,35 +33,85 @@ public class GenerateBoard {
             } else if (row == 2 * BORDER_SIZE_IN_SQUARES + BOARD_SIDE_LENGTH_IN_SQUARES - 1) {
                 printHeader(teamColor);
             } else {
-                printLine(row, board);
+                printLine(row, board, teamColor);
                 setBlack();
             }
 
-            setBlack();
+            setBKG();
             out.println();
         }
     }
 
     private void printHeader(ChessGame.TeamColor color) {
-        for (int col = 0; col < 2 * BORDER_SIZE_IN_SQUARES + BOARD_SIDE_LENGTH_IN_SQUARES; col++) {
-            setHeader();
-            out.print(EMPTY);
-        }
-        // Add functionality for flippling the board - maybe do it by changing which way we iterate through the board
-    }
-
-    private void printLine(int row, ChessBoard board) {
+        setHeader();
         for (int col = 0; col < 2 * BORDER_SIZE_IN_SQUARES + BOARD_SIDE_LENGTH_IN_SQUARES; col++) {
             if (col == 0 || col == 2 * BORDER_SIZE_IN_SQUARES + BOARD_SIDE_LENGTH_IN_SQUARES - 1) {
-                setHeader();
+                out.print(EMPTY);
+            } else if (color == ChessGame.TeamColor.WHITE) {
+                out.print("\u2005" + "\u2005" + "\u2009" + (char) ('a' + col - 1) + " " + "\u200A");
+            } else {
+                out.print("\u2005" + "\u2005" + "\u2009" + (char) ('h' - col + 1) + " " + "\u200A");
+            }
+        }
+    }
+
+    private void printSide(int row, ChessGame.TeamColor color) {
+        setHeader();
+        switch (color) {
+            case WHITE -> out.print(" " + "\u2009" + (9 - row) + "\u200A" + " ");
+            case BLACK -> out.print(" " + "\u2009" + row + "\u200A" + " ");
+            case null, default -> out.print(EMPTY);
+        }
+    }
+
+    private void printLine(int row, ChessBoard board, ChessGame.TeamColor color) {
+        for (int col = 0; col < 2 * BORDER_SIZE_IN_SQUARES + BOARD_SIDE_LENGTH_IN_SQUARES; col++) {
+            if (col == 0 ) {
+                printSide(row, color);
+            } else if (col == 2 * BORDER_SIZE_IN_SQUARES + BOARD_SIDE_LENGTH_IN_SQUARES - 1) {
+                printSide(row, color);
             } else if ((row % 2 == 1 && col % 2 == 1) || (row % 2 == 0 && col % 2 == 0)) { // here I can take the 1 or 0 and tie it to color
                 setWhite();
+                printPiece(board, row, col, color);
             } else {
-                setBlack();
+                setGrey();
+                printPiece(board, row, col, color);
             }
-            out.print(EMPTY);
         }
+    }
 
+    private void printPiece(ChessBoard board, int row, int col, ChessGame.TeamColor color) {
+        ChessPiece piece;
+        if (color == ChessGame.TeamColor.WHITE) {
+            piece = board.getPiece(new ChessPosition(9 - row, col));
+        } else {
+            piece = board.getPiece(new ChessPosition(row, col));
+        }
+        if (piece == null) {
+            out.print(EMPTY);
+            return;
+        }
+        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            switch (piece.getPieceType()) {
+                case KING -> out.print(WHITE_KING);
+                case QUEEN -> out.print(WHITE_QUEEN);
+                case ROOK -> out.print(WHITE_ROOK);
+                case BISHOP -> out.print(WHITE_BISHOP);
+                case KNIGHT -> out.print(WHITE_KNIGHT);
+                case PAWN -> out.print(WHITE_PAWN);
+                case null, default -> out.print(EMPTY);
+            }
+        } else {
+            switch (piece.getPieceType()) {
+                case KING -> out.print(BLACK_KING);
+                case QUEEN -> out.print(BLACK_QUEEN);
+                case ROOK -> out.print(BLACK_ROOK);
+                case BISHOP -> out.print(BLACK_BISHOP);
+                case KNIGHT -> out.print(BLACK_KNIGHT);
+                case PAWN -> out.print(BLACK_PAWN);
+                case null, default -> out.print(EMPTY);
+            }
+        }
     }
 
     private void setHeader() {
@@ -81,6 +128,16 @@ public class GenerateBoard {
     private void setBlack() {
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_BLACK);
+    }
+
+    private void setGrey() {
+        out.print(SET_BG_COLOR_LIGHT_GREY);
+        out.print(SET_TEXT_COLOR_BLACK);
+    }
+
+    private void setBKG() {
+        out.print(RESET_BG_COLOR);
+        out.print(RESET_TEXT_COLOR);
     }
 
     private ChessGame.TeamColor colorToTeam(String color) {
