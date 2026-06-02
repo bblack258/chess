@@ -2,10 +2,7 @@ package client;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import model.AuthData;
-import model.GameList;
-import model.JoinRequest;
-import model.UserData;
+import model.*;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -47,13 +44,18 @@ public class ServerFacade {
     public GameList listGames() throws DataAccessException {
         HttpRequest request = buildRequest("GET", "/game", null);
         HttpResponse<String> response = sendRequest(request);
-        return handleResponse(response, GameList.class);
+        GameListResult result = handleResponse(response, GameListResult.class);
+        if (result != null) {
+            return result.games();
+        }
+        return null;
     }
 
     public String create(String gameName) throws DataAccessException {
-        HttpRequest request = buildRequest("POST", "/game", gameName);
+        HttpRequest request = buildRequest("POST", "/game", new GameData(0, null,
+                null, gameName, null));
         HttpResponse<String> response = sendRequest(request);
-        handleResponse(response, Integer.class);
+        handleResponse(response, GameData.class);
         return gameName;
     }
 
@@ -81,7 +83,6 @@ public class ServerFacade {
 
     private HttpResponse<String> sendRequest(HttpRequest request) throws DataAccessException {
         try {
-            System.out.println(request);
             return client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (Exception ex) {
             throw new DataAccessException("Server error: " + ex.getMessage(), ex);
@@ -104,4 +105,5 @@ public class ServerFacade {
 
         return null;
     }
+
 }

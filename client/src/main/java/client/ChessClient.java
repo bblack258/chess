@@ -1,8 +1,9 @@
 package client;
 
-import com.google.gson.Gson;
+import dataaccess.BadRequestException;
 import dataaccess.DataAccessException;
 import model.*;
+import ui.GenerateBoard;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -13,10 +14,12 @@ public class ChessClient {
 
     private final ServerFacade server;
     private State state;
+    private final GenerateBoard drawBoard;
 
     public ChessClient(String serverURL) {
         server = new ServerFacade(serverURL);
         state = State.LOGGED_OUT;
+        drawBoard = new GenerateBoard();
     }
 
     public void run() {
@@ -69,33 +72,38 @@ public class ChessClient {
             state = State.LOGGED_IN;
             return String.format("You have registered and logged in as %s", auth.username());
         }
-        return null;
+        throw new BadRequestException("Error: must have username, password, and email");
     }
 
     public String login(String... params) throws DataAccessException {
+        System.out.println("Fix error handling");
         if (params.length >= 2) {
             AuthData auth = server.login(new UserData(params[0], params[1], null));
             state = State.LOGGED_IN;
             return String.format("You have logged in as %s", auth.username());
         }
-        return null;
+        throw new BadRequestException("Error: must contain username and password");
     }
 
     public String create(String... params) throws DataAccessException {
         isLoggedIn();
         if (params.length >= 1) {
             String game = server.create(params[0]);
-            return String.format("Created new game: %s", game);
+            return String.format("Successfully created new game: %s", game);
         }
-        return "Failed to create game";
+        throw new BadRequestException("Failed to create game: must provide game name");
     }
 
-    public String list(String... params) throws DataAccessException {
+    public String list() throws DataAccessException {
         isLoggedIn();
         GameList gameList = server.listGames();
         StringBuilder list = new StringBuilder();
-        for (GameData game : gameList) {
-            list.append(new Gson().toJson(game)).append('\n');
+        for (int i = 0; i < gameList.size(); i++) {
+            GameData game = gameList.get(i);
+            list.append(String.format("%d. Game name: %-15s", i+1, game.gameName()));
+            list.append(String.format("White: %-10s", game.whiteUsername()));
+            list.append(String.format("Black: %-10s", game.blackUsername()));
+            list.append('\n');
         }
         return list.toString();
     }
@@ -108,24 +116,27 @@ public class ChessClient {
             int gameID = gameList.get(listID - 1).gameID();
             JoinRequest join = new JoinRequest(params[1].toUpperCase(), gameID);
             server.join(join);
-            return String.format("Successfully joined game %d", listID);
+            System.out.printf("Successfully joined game %d%n", listID);
+            drawBoard.printBoard(gameList.get(listID - 1).game().getBoard(), params[1].toUpperCase());
+            return gameList.get(listID - 1).game().toString();
         }
-        return "Failed to join game";
+        throw new BadRequestException("Failed to join game: must provide ID and color");
     }
 
     public String observe(String... params) throws DataAccessException {
         isLoggedIn();
-        if (params.length >= 2) {
+        if (params.length >= 1) {
             int listID = Integer.parseInt(params[0]);
             GameList gameList = server.listGames();
             return gameList.get(listID - 1).game().toString();
         }
-        return "Failed to observe";
+        throw new BadRequestException("Failed to observe: must provide game ID");
     }
 
-    public String logout(String... params) throws DataAccessException {
+    public String logout() throws DataAccessException {
         isLoggedIn();
         server.logout();
+        state = State.LOGGED_OUT;
         return "You have logged out";
     }
 
