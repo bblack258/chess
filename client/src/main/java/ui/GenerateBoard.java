@@ -5,6 +5,7 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 
+import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
@@ -17,13 +18,15 @@ public class GenerateBoard {
     private static final int BOARD_SIDE_LENGTH_IN_SQUARES = 8;
     private static final int BORDER_SIZE_IN_SQUARES = 1;
 
+    private static ByteArrayOutputStream outputStream;
     private static PrintStream out;
 
     public GenerateBoard() {
-        out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        outputStream = new ByteArrayOutputStream();
+        out = new PrintStream(outputStream, true, StandardCharsets.UTF_8);
     }
 
-    public void printBoard(ChessBoard board, String color) {
+    public String printBoard(ChessBoard board, String color) {
 
         ChessGame.TeamColor teamColor = colorToTeam(color);
 
@@ -40,6 +43,7 @@ public class GenerateBoard {
             setBKG();
             out.println();
         }
+        return outputStream.toString();
     }
 
     private void printHeader(ChessGame.TeamColor color) {

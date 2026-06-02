@@ -35,8 +35,10 @@ public class ChessClient {
             try {
                 result = eval(line);
                 System.out.println(SET_TEXT_COLOR_BLUE + result);
+            } catch (NumberFormatException ex) {
+                System.out.println(SET_TEXT_COLOR_BLUE + "Please enter a valid ID");
             } catch (Exception ex) {
-                System.out.println(ex.getMessage());
+                System.out.println(SET_TEXT_COLOR_BLUE + ex.getMessage());
             }
         }
         System.out.println();
@@ -67,6 +69,7 @@ public class ChessClient {
     }
 
     public String register(String... params) throws DataAccessException {
+        isLoggedOut();
         if (params.length >= 3) {
             AuthData auth = server.register(new UserData(params[0], params[1], params[2]));
             state = State.LOGGED_IN;
@@ -76,7 +79,7 @@ public class ChessClient {
     }
 
     public String login(String... params) throws DataAccessException {
-        System.out.println("Fix error handling");
+        isLoggedOut();
         if (params.length >= 2) {
             AuthData auth = server.login(new UserData(params[0], params[1], null));
             state = State.LOGGED_IN;
@@ -113,12 +116,14 @@ public class ChessClient {
         if (params.length >= 2) {
             int listID = Integer.parseInt(params[0]);
             GameList gameList = server.listGames();
+            if (!(listID > 0 && listID <= gameList.size())) {
+                throw new BadRequestException("Please enter a valid ID");
+            }
             int gameID = gameList.get(listID - 1).gameID();
             JoinRequest join = new JoinRequest(params[1].toUpperCase(), gameID);
             server.join(join);
             System.out.printf("Successfully joined game %d%n", listID);
-            drawBoard.printBoard(gameList.get(listID - 1).game().getBoard(), params[1].toUpperCase());
-            return gameList.get(listID - 1).game().toString();
+            return drawBoard.printBoard(gameList.get(listID - 1).game().getBoard(), params[1].toUpperCase());
         }
         throw new BadRequestException("Failed to join game: must provide ID and color");
     }
@@ -128,7 +133,10 @@ public class ChessClient {
         if (params.length >= 1) {
             int listID = Integer.parseInt(params[0]);
             GameList gameList = server.listGames();
-            return gameList.get(listID - 1).game().toString();
+            if (!(listID > 0 && listID <= gameList.size())) {
+                throw new BadRequestException("Please enter a valid ID");
+            }
+            return drawBoard.printBoard(gameList.get(listID - 1).game().getBoard(), "White");
         }
         throw new BadRequestException("Failed to observe: must provide game ID");
     }
@@ -157,6 +165,12 @@ public class ChessClient {
                 help - get possible commands
                 logout - log out of your account
                 """;
+    }
+
+    private void isLoggedOut() throws DataAccessException {
+        if (state != State.LOGGED_OUT) {
+            throw new DataAccessException("Error: you are already signed in");
+        }
     }
 
     private void isLoggedIn() throws DataAccessException {

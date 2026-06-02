@@ -2,6 +2,7 @@ package client;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
+import dataaccess.ErrorMessage;
 import model.*;
 
 import java.net.URI;
@@ -94,7 +95,7 @@ public class ServerFacade {
         if (status / 100 != 2) {
             String body = response.body();
             if (!body.isEmpty()) {
-                throw new DataAccessException(new Gson().fromJson(body, body.getClass()));
+                throw new DataAccessException(new Gson().fromJson(body, ErrorMessage.class).message());
             }
             throw new DataAccessException("Failure! Status: " + status);
         }
