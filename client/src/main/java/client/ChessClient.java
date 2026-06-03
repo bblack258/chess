@@ -35,7 +35,7 @@ public class ChessClient {
             try {
                 result = eval(line);
                 System.out.println(SET_TEXT_COLOR_BLUE + result);
-            } catch (NumberFormatException ex) {
+            } catch (NumberFormatException | IndexOutOfBoundsException ex) {
                 System.out.println(SET_TEXT_COLOR_BLUE + "Please enter a valid ID");
             } catch (Exception ex) {
                 System.out.println(SET_TEXT_COLOR_BLUE + ex.getMessage());
@@ -116,9 +116,6 @@ public class ChessClient {
         if (params.length >= 2) {
             int listID = Integer.parseInt(params[0]);
             GameList gameList = server.listGames();
-            if (!(listID > 0 && listID <= gameList.size())) {
-                throw new BadRequestException("Please enter a valid ID");
-            }
             int gameID = gameList.get(listID - 1).gameID();
             JoinRequest join = new JoinRequest(params[1].toUpperCase(), gameID);
             server.join(join);
@@ -133,9 +130,6 @@ public class ChessClient {
         if (params.length >= 1) {
             int listID = Integer.parseInt(params[0]);
             GameList gameList = server.listGames();
-            if (!(listID > 0 && listID <= gameList.size())) {
-                throw new BadRequestException("Please enter a valid ID");
-            }
             return drawBoard.printBoard(gameList.get(listID - 1).game().getBoard(), "White");
         }
         throw new BadRequestException("Failed to observe: must provide game ID");
