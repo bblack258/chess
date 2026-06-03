@@ -88,7 +88,7 @@ public class GenerateBoard {
         if (color == ChessGame.TeamColor.WHITE) {
             piece = board.getPiece(new ChessPosition(9 - row, col));
         } else {
-            piece = board.getPiece(new ChessPosition(row, col));
+            piece = board.getPiece(new ChessPosition(row, 9 - col));
         }
         if (piece == null) {
             out.print(EMPTY);

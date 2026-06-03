@@ -14,12 +14,10 @@ public class ChessClient {
 
     private final ServerFacade server;
     private State state;
-    private final GenerateBoard drawBoard;
 
     public ChessClient(String serverURL) {
         server = new ServerFacade(serverURL);
         state = State.LOGGED_OUT;
-        drawBoard = new GenerateBoard();
     }
 
     public void run() {
@@ -120,7 +118,7 @@ public class ChessClient {
             JoinRequest join = new JoinRequest(params[1].toUpperCase(), gameID);
             server.join(join);
             System.out.printf("Successfully joined game %d%n", listID);
-            return drawBoard.printBoard(gameList.get(listID - 1).game().getBoard(), params[1].toUpperCase());
+            return new GenerateBoard().printBoard(gameList.get(listID - 1).game().getBoard(), params[1].toUpperCase());
         }
         throw new BadRequestException("Failed to join game: must provide ID and color");
     }
@@ -130,7 +128,7 @@ public class ChessClient {
         if (params.length >= 1) {
             int listID = Integer.parseInt(params[0]);
             GameList gameList = server.listGames();
-            return drawBoard.printBoard(gameList.get(listID - 1).game().getBoard(), "White");
+            return new GenerateBoard().printBoard(gameList.get(listID - 1).game().getBoard(), "White");
         }
         throw new BadRequestException("Failed to observe: must provide game ID");
     }
