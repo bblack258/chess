@@ -56,7 +56,7 @@ class GameServiceTest {
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-        expected.add(new GameData(gameID, null, null, "game1", new ChessGame()));
+        expected.add(new GameData(gameID, null, null, "game1", new ChessGame(),false));
         try {
             assertEquals(expected, gameMemory.getGames());
         } catch (DataAccessException ex) {
@@ -126,13 +126,13 @@ class GameServiceTest {
         try {
             int gameID = service.addGame(auth.authToken(), "game1");
             ChessGame game = gameMemory.getGames(gameID).game();
-            expected.add(new GameData(gameID, null, null, "game1", game));
+            expected.add(new GameData(gameID, null, null, "game1", game, false));
             gameID = service.addGame(auth.authToken(), "game2");
             game = gameMemory.getGames(gameID).game();
-            expected.add(new GameData(gameID, null, null, "game2", game));
+            expected.add(new GameData(gameID, null, null, "game2", game, false));
             gameID = service.addGame(auth.authToken(), "game3");
             game = gameMemory.getGames(gameID).game();
-            expected.add(new GameData(gameID, null, null, "game3", game));
+            expected.add(new GameData(gameID, null, null, "game3", game, false));
             assertEquals(expected, service.listGames(auth.authToken()));
         } catch (DataAccessException e) {
             throw new RuntimeException(e);

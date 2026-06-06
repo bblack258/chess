@@ -14,6 +14,8 @@ public class ChessClient {
 
     private final ServerFacade server;
     private State state;
+    private GameData game;
+    private String board;
 
     public ChessClient(String serverURL) {
         server = new ServerFacade(serverURL);
@@ -58,6 +60,11 @@ public class ChessClient {
                 case "join" -> join(params);
                 case "observe" -> observe(params);
                 case "logout" -> logout();
+                case "redraw" -> redraw();
+                case "leave" -> leave();
+                case "makeMove" -> makeMove();
+                case "resign" -> resign();
+                case "highlight" -> highlight();
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -97,6 +104,7 @@ public class ChessClient {
 
     public String list() throws DataAccessException {
         isLoggedIn();
+        isInGame();
         GameList gameList = server.listGames();
         StringBuilder list = new StringBuilder();
         for (int i = 0; i < gameList.size(); i++) {
@@ -111,6 +119,7 @@ public class ChessClient {
 
     public String join(String... params) throws DataAccessException {
         isLoggedIn();
+        isInGame();
         if (params.length >= 2) {
             int listID = Integer.parseInt(params[0]);
             GameList gameList = server.listGames();
@@ -119,27 +128,54 @@ public class ChessClient {
             server.join(join);
             state = State.PLAYING_GAME;
             System.out.printf("Successfully joined game %d%n", listID);
-            return new GenerateBoard().printBoard(gameList.get(listID - 1).game().getBoard(), params[1].toUpperCase());
+            game = gameList.get(listID - 1);
+            board = new GenerateBoard().printBoard(game.game().getBoard(), params[1].toUpperCase());
+            return board;
         }
         throw new BadRequestException("Failed to join game: must provide ID and color");
     }
 
     public String observe(String... params) throws DataAccessException {
         isLoggedIn();
+        isInGame();
         if (params.length >= 1) {
             int listID = Integer.parseInt(params[0]);
             GameList gameList = server.listGames();
             state = State.PLAYING_GAME;
-            return new GenerateBoard().printBoard(gameList.get(listID - 1).game().getBoard(), "White");
+            game = gameList.get(listID - 1);
+            board = new GenerateBoard().printBoard(game.game().getBoard(), "White");
+            return board;
         }
         throw new BadRequestException("Failed to observe: must provide game ID");
     }
 
     public String logout() throws DataAccessException {
         isLoggedIn();
+        isInGame();
         server.logout();
         state = State.LOGGED_OUT;
         return "You have logged out";
+    }
+
+    public String redraw() throws DataAccessException {
+        return board;
+    }
+
+    public String leave() {
+        state = State.LOGGED_IN;
+        return "You have left game: " + game;
+    }
+
+    public String makeMove(String... params) {
+        return null;
+    }
+
+    public String resign() {
+        return null;
+    }
+
+    public String highlight(String... params) {
+        return null;
     }
 
     public String help() {
@@ -165,6 +201,7 @@ public class ChessClient {
                 makeMove <START> <END> - make a move from start position to end position
                 resign - forfeit and end the game
                 highlight <POSITION> - highlight legal moves for a selected piece at given position
+                help - get possible commands
                 leave - leave the current game
                 """;
     }
@@ -181,10 +218,20 @@ public class ChessClient {
         }
     }
 
-    private void isInGame() throws DataAccessException {
+    private void notInGame() throws DataAccessException {
         if (state != State.PLAYING_GAME && state != State.OBSERVING) {
             throw new DataAccessException("Error: you must be in a game");
         }
+    }
+
+    private void isInGame() throws DataAccessException {
+        if (state == State.PLAYING_GAME || state == State.OBSERVING) {
+            throw new DataAccessException("Error: you are currently in a game");
+        }
+    }
+
+    private void isGameOver() throws DataAccessException {
+
     }
 
 }

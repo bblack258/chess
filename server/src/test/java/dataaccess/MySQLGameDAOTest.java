@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class MySQLGameDAOTest {
 
     static GameDAO gameMemory;
-    GameData myGame = new GameData(1, null, null, "only", new ChessGame());
+    GameData myGame = new GameData(1, null, null, "only", new ChessGame(), false);
 
     @BeforeAll
     static void prep() {

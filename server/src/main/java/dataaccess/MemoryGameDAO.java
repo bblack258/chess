@@ -38,7 +38,7 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public int addGame(String gameName) {
-        gameList.add(new GameData(gameID,null, null, gameName, new ChessGame()));
+        gameList.add(new GameData(gameID,null, null, gameName, new ChessGame(), false));
         return gameID++;
     }
 
@@ -48,10 +48,10 @@ public class MemoryGameDAO implements GameDAO {
             if (gameID == game.gameID()) {
                 if (color.equals(ChessGame.TeamColor.WHITE)) {
                     gameList.remove(game);
-                    gameList.add(new GameData(gameID, username, game.blackUsername(), game.gameName(), game.game()));
+                    gameList.add(new GameData(gameID, username, game.blackUsername(), game.gameName(), game.game(),false));
                 } else {
                     gameList.remove(game);
-                    gameList.add(new GameData(gameID, game.whiteUsername(), username, game.gameName(), game.game()));
+                    gameList.add(new GameData(gameID, game.whiteUsername(), username, game.gameName(), game.game(),false));
                 }
             }
         }

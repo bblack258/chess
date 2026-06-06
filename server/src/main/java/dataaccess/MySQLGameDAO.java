@@ -28,7 +28,7 @@ public class MySQLGameDAO implements GameDAO {
     public List<GameData> getGames() throws DataAccessException {
         List<GameData> gameList = new ArrayList<>();
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM game";
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game, gameOver FROM game";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
@@ -45,7 +45,7 @@ public class MySQLGameDAO implements GameDAO {
     @Override
     public GameData getGames(String gameName) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM game WHERE gameName=?";
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game, gameOver FROM game WHERE gameName=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setString(1, gameName);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -63,7 +63,7 @@ public class MySQLGameDAO implements GameDAO {
     @Override
     public GameData getGames(int gameID) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM game WHERE gameID=?";
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game, gameOver FROM game WHERE gameID=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, gameID);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -81,12 +81,13 @@ public class MySQLGameDAO implements GameDAO {
     @Override
     public int addGame(String gameName) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "INSERT INTO game (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
+            var statement = "INSERT INTO game (whiteUsername, blackUsername, gameName, game, gameOver) VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 ps.setString(1, null);
                 ps.setString(2, null);
                 ps.setString(3, gameName);
                 ps.setString(4, new Gson().toJson(new ChessGame()));
+                ps.setBoolean(5, false);
                 ps.executeUpdate();
 
                 ResultSet rs = ps.getGeneratedKeys();
@@ -139,7 +140,8 @@ public class MySQLGameDAO implements GameDAO {
         String blackUsername = rs.getString("blackUsername");
         String gameName = rs.getString("gameName");
         var json = rs.getString("game");
+        boolean gameOver = rs.getBoolean("gameOver");
         ChessGame game = new Gson().fromJson(json, ChessGame.class);
-        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, game, gameOver);
     }
 }
