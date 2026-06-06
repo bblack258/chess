@@ -54,7 +54,7 @@ public class ServerFacade {
 
     public String create(String gameName) throws DataAccessException {
         HttpRequest request = buildRequest("POST", "/game", new GameData(0, null,
-                null, gameName, null));
+                null, gameName, null, false));
         HttpResponse<String> response = sendRequest(request);
         handleResponse(response, GameData.class);
         return gameName;

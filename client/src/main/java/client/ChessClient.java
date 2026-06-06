@@ -16,6 +16,7 @@ public class ChessClient {
     private State state;
     private GameData game;
     private String board;
+    private String teamColor;
 
     public ChessClient(String serverURL) {
         server = new ServerFacade(serverURL);
@@ -104,7 +105,7 @@ public class ChessClient {
 
     public String list() throws DataAccessException {
         isLoggedIn();
-        isInGame();
+        alreadyInGame();
         GameList gameList = server.listGames();
         StringBuilder list = new StringBuilder();
         for (int i = 0; i < gameList.size(); i++) {
@@ -119,17 +120,18 @@ public class ChessClient {
 
     public String join(String... params) throws DataAccessException {
         isLoggedIn();
-        isInGame();
+        alreadyInGame();
         if (params.length >= 2) {
             int listID = Integer.parseInt(params[0]);
             GameList gameList = server.listGames();
             int gameID = gameList.get(listID - 1).gameID();
-            JoinRequest join = new JoinRequest(params[1].toUpperCase(), gameID);
+            teamColor = params[1].toUpperCase();
+            JoinRequest join = new JoinRequest(teamColor, gameID);
             server.join(join);
             state = State.PLAYING_GAME;
             System.out.printf("Successfully joined game %d%n", listID);
             game = gameList.get(listID - 1);
-            board = new GenerateBoard().printBoard(game.game().getBoard(), params[1].toUpperCase());
+            board = new GenerateBoard().printBoard(game.game().getBoard(), teamColor);
             return board;
         }
         throw new BadRequestException("Failed to join game: must provide ID and color");
@@ -137,7 +139,7 @@ public class ChessClient {
 
     public String observe(String... params) throws DataAccessException {
         isLoggedIn();
-        isInGame();
+        alreadyInGame();
         if (params.length >= 1) {
             int listID = Integer.parseInt(params[0]);
             GameList gameList = server.listGames();
@@ -151,30 +153,43 @@ public class ChessClient {
 
     public String logout() throws DataAccessException {
         isLoggedIn();
-        isInGame();
+        alreadyInGame();
         server.logout();
         state = State.LOGGED_OUT;
         return "You have logged out";
     }
 
     public String redraw() throws DataAccessException {
+        notInGame();
         return board;
     }
 
-    public String leave() {
+    public String leave() throws DataAccessException {
+        notInGame();
+        JoinRequest leave = new JoinRequest(teamColor, game.gameID());
+//        server.leave(leave);
         state = State.LOGGED_IN;
         return "You have left game: " + game;
     }
 
-    public String makeMove(String... params) {
+    public String makeMove(String... params) throws DataAccessException {
+        isGameOver();
+//      new update game with websocket
         return null;
     }
 
-    public String resign() {
+    public String resign() throws DataAccessException {
+        isGameOver();
+        System.out.println("Are you sure you want to resign?");
+        Scanner scanner = new Scanner(System.in);
+        String line = scanner.nextLine();
+//      update game and change gameOver to true
         return null;
     }
 
-    public String highlight(String... params) {
+    public String highlight(String... params) throws DataAccessException {
+        notInGame();
+//      call new function in generate board to highlight given squares for a move set
         return null;
     }
 
@@ -224,14 +239,16 @@ public class ChessClient {
         }
     }
 
-    private void isInGame() throws DataAccessException {
+    private void alreadyInGame() throws DataAccessException {
         if (state == State.PLAYING_GAME || state == State.OBSERVING) {
             throw new DataAccessException("Error: you are currently in a game");
         }
     }
 
     private void isGameOver() throws DataAccessException {
-
+        notInGame();
+        if (!game.gameOver()) {
+            throw new DataAccessException("Error: game is over");
+        }
     }
-
 }
