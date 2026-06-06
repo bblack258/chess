@@ -117,6 +117,7 @@ public class ChessClient {
             int gameID = gameList.get(listID - 1).gameID();
             JoinRequest join = new JoinRequest(params[1].toUpperCase(), gameID);
             server.join(join);
+            state = State.PLAYING_GAME;
             System.out.printf("Successfully joined game %d%n", listID);
             return new GenerateBoard().printBoard(gameList.get(listID - 1).game().getBoard(), params[1].toUpperCase());
         }
@@ -128,6 +129,7 @@ public class ChessClient {
         if (params.length >= 1) {
             int listID = Integer.parseInt(params[0]);
             GameList gameList = server.listGames();
+            state = State.PLAYING_GAME;
             return new GenerateBoard().printBoard(gameList.get(listID - 1).game().getBoard(), "White");
         }
         throw new BadRequestException("Failed to observe: must provide game ID");
@@ -148,14 +150,22 @@ public class ChessClient {
                     help - get possible commands
                     quit - stop playing chess
                     """;
-        }
-        return """
+        } else if (state == State.LOGGED_IN) {
+            return """
                 create <NAME> - make a new chess game
                 list - list all current chess games
                 join <ID> <WHITE|BLACK> - join a chess game
                 observe <ID> - watch a chess game
                 help - get possible commands
                 logout - log out of your account
+                """;
+        }
+        return """
+                redraw - redraw the chess board
+                makeMove <START> <END> - make a move from start position to end position
+                resign - forfeit and end the game
+                highlight <POSITION> - highlight legal moves for a selected piece at given position
+                leave - leave the current game
                 """;
     }
 
@@ -166,8 +176,15 @@ public class ChessClient {
     }
 
     private void isLoggedIn() throws DataAccessException {
-        if (state != State.LOGGED_IN) {
+        if (state == State.LOGGED_OUT) {
             throw new DataAccessException("Error: you must be signed in");
         }
     }
+
+    private void isInGame() throws DataAccessException {
+        if (state != State.PLAYING_GAME && state != State.OBSERVING) {
+            throw new DataAccessException("Error: you must be in a game");
+        }
+    }
+
 }
