@@ -1,5 +1,7 @@
 package websocket.commands;
 
+import chess.ChessMove;
+
 import java.util.Objects;
 
 /**
@@ -13,11 +15,19 @@ public class UserGameCommand {
     private final CommandType commandType;
     private final String authToken;
     private final Integer gameID;
+    private ChessMove move = null;
 
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
+    }
+
+    public UserGameCommand(CommandType commandType, String authToken, Integer gameID, ChessMove move) {
+        this.commandType = commandType;
+        this.authToken = authToken;
+        this.gameID = gameID;
+        this.move = move;
     }
 
     public enum CommandType {
@@ -39,21 +49,20 @@ public class UserGameCommand {
         return gameID;
     }
 
+    public ChessMove getMove() {return move;}
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof UserGameCommand that)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        return getCommandType() == that.getCommandType() &&
-                Objects.equals(getAuthToken(), that.getAuthToken()) &&
-                Objects.equals(getGameID(), that.getGameID());
+        UserGameCommand that = (UserGameCommand) o;
+        return commandType == that.commandType && Objects.equals(authToken, that.authToken) &&
+                Objects.equals(gameID, that.gameID) && Objects.equals(move, that.move);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getCommandType(), getAuthToken(), getGameID());
+        return Objects.hash(commandType, authToken, gameID, move);
     }
 }

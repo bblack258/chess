@@ -4,6 +4,7 @@ import io.javalin.*;
 import io.javalin.http.Context;
 import com.google.gson.Gson;
 import model.*;
+import server.websocket.WebSocketHandler;
 import service.*;
 import dataaccess.*;
 import dataaccesserrors.*;
@@ -17,6 +18,7 @@ public class Server {
     private final GameService gameService;
     private final ClearService clearService;
     private final Javalin javalin;
+    private final WebSocketHandler webSocketHandler;
 
     public Server() { this(new MySQLUserDAO(), new MySQLAuthDAO(), new MySQLGameDAO()); }
 
@@ -24,6 +26,8 @@ public class Server {
         userService = new UserService(userMemory, authMemory);
         gameService = new GameService(authMemory, gameMemory);
         clearService = new ClearService(userMemory, authMemory, gameMemory);
+
+        webSocketHandler = new WebSocketHandler();
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
         javalin.post("/user", this::register)
@@ -33,7 +37,12 @@ public class Server {
                 .post("/game", this::add)
                 .put("/game", this::join)
                 .delete("/db", this::clear)
-                .exception(DataAccessException.class, this::dataAccessExceptionHandler);
+                .exception(DataAccessException.class, this::dataAccessExceptionHandler)
+                .ws("/ws", ws -> {
+                    ws.onConnect(webSocketHandler);
+                    ws.onMessage(webSocketHandler);
+                    ws.onClose(webSocketHandler);
+                });
     }
 
     public int run(int desiredPort) {
