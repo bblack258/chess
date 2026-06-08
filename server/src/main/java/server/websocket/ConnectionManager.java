@@ -17,11 +17,19 @@ public class ConnectionManager {
         connections.get(gameID).remove(session, session);
     }
 
-    public void broadcast(Integer gameID, Session exclude, String message) throws IOException {
+    public void broadcast(Integer gameID, Session exclude, ServerMessage message) throws IOException {
         for (Session c : connections.get(gameID).values()) {
             if (c.isOpen()) {
                 if (!c.equals(exclude)) {
-                    c.getRemote().sendString(message);
+                    String msg = "Error: no message to broadcast";
+                    if (message instanceof ErrorMessage) {
+                        msg = ((ErrorMessage) message).getError();
+                    } else if (message instanceof NotificationMessage) {
+                        msg = ((NotificationMessage) message).getNotification();
+                    } else if (message instanceof LoadGameMessage) {
+                        msg = ((LoadGameMessage) message).getGame();
+                    }
+                    c.getRemote().sendString(msg);
                 }
             }
         }
