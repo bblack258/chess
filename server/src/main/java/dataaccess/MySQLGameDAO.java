@@ -123,6 +123,44 @@ public class MySQLGameDAO implements GameDAO {
     }
 
     @Override
+    public void updateGame(int gameID, ChessGame game) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            String statement;
+            if (game != null) {
+                statement = "UPDATE game SET game = ? WHERE gameID = ?";
+            } else {
+                throw new DataAccessException("Error: invalid update");
+            }
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, new Gson().toJson(game));
+                ps.setInt(2, gameID);
+                ps.executeUpdate();
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Error: " + ex.getMessage());
+        }
+    }
+
+    @Override
+    public void finishGame(int gameID) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            String statement;
+            ChessGame game = getGames(gameID).game();
+            if (game != null) {
+                statement = "UPDATE game SET gameOver = FALSE WHERE gameID = ?";
+            } else {
+                throw new DataAccessException("Error: invalid update");
+            }
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, gameID);
+                ps.executeUpdate();
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Error: " + ex.getMessage());
+        }
+    }
+
+    @Override
     public void clearGames() throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "TRUNCATE game";

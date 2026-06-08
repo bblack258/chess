@@ -27,7 +27,7 @@ public class Server {
         gameService = new GameService(authMemory, gameMemory);
         clearService = new ClearService(userMemory, authMemory, gameMemory);
 
-        webSocketHandler = new WebSocketHandler(userMemory, authMemory, gameMemory);
+        webSocketHandler = new WebSocketHandler(authMemory, gameMemory);
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
         javalin.post("/user", this::register)
