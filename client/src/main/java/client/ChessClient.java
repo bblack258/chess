@@ -189,6 +189,9 @@ public class ChessClient implements ServerMessageObserver {
         int startRow = Character.getNumericValue(params[0].charAt(1));
         int endCol = read(params[1].charAt(0));
         int endRow = Character.getNumericValue(params[1].charAt(1));
+        if (startCol == 0 || endCol == 0 || startRow < 1 || startRow > 8 || endRow < 1 || endRow > 8) {
+            throw new DataAccessException("Error: Invalid move");
+        }
         ChessPiece.PieceType promotionPiece = null;
         if (params.length >= 3) {
             String piece = params[2];
@@ -282,6 +285,7 @@ public class ChessClient implements ServerMessageObserver {
         } else if (message instanceof ErrorMessage) {
             System.out.println(SET_TEXT_COLOR_MAGENTA + ((ErrorMessage) message).getError());
         } else {
+            board = ((LoadGameMessage) message).getGame();
             System.out.println("\n" + new GenerateBoard().printBoard(((LoadGameMessage) message).getGame(), teamColor));
         }
         System.out.print(SET_TEXT_COLOR_GREEN + "[" + state + "]" + " >>> ");

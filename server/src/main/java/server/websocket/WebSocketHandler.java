@@ -100,7 +100,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             if (game == null) {
                 throw new DataAccessException("Error: Invalid game ID");
             }
-            checkMove(move);
             checkObserver(user, game);
             checkTurn(user, game);
             checkPiece(user, game, move.getStartPosition());
@@ -181,15 +180,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             throw new DataAccessException("Error: Unauthorized request");
         }
         return authData.username();
-    }
-
-    private void checkMove(ChessMove move) throws DataAccessException {
-        if (move.getStartPosition().getRow() < 1 || move.getStartPosition().getRow() > 8 ||
-                move.getStartPosition().getColumn() < 1 || move.getStartPosition().getColumn() > 8 ||
-                move.getEndPosition().getRow() < 1 || move.getEndPosition().getRow() > 8 ||
-                move.getEndPosition().getColumn() < 1 || move.getEndPosition().getColumn() > 8) {
-            throw new DataAccessException("Error: Invalid move");
-        }
     }
 
     private void checkObserver(String user, GameData game) throws DataAccessException {
