@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import dataaccesserrors.DataAccessException;
 import jakarta.websocket.*;
@@ -12,28 +13,31 @@ import java.net.URISyntaxException;
 
 public class WebSocketFacade extends Endpoint {
 
-    Session session;
-    ServerMessageObserver observer;
+    private final Session session;
 
     public WebSocketFacade(String url, ServerMessageObserver observer) throws DataAccessException {
         try {
-            this.observer = observer;
 
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
 
-            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
-                @Override
-                public void onMessage(String message) {
-                    ServerMessage type = new Gson().fromJson(message, ServerMessage.class);
-                    switch (type.getServerMessageType()) {
-                        case NOTIFICATION -> type = new Gson().fromJson(message, NotificationMessage.class);
-                        case ERROR -> type = new Gson().fromJson(message, ErrorMessage.class);
-                        case LOAD_GAME -> type = new Gson().fromJson(message, LoadGameMessage.class);
+            this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
+                ServerMessage type = new Gson().fromJson(message, ServerMessage.class);
+                switch (type.getServerMessageType()) {
+                    case NOTIFICATION -> {
+                        type = new Gson().fromJson(message, NotificationMessage.class);
+                        observer.notify(type);
                     }
-                    // Finish this out
+                    case ERROR -> {
+                        type = new Gson().fromJson(message, ErrorMessage.class);
+                        observer.notify(type);
+                    }
+                    case LOAD_GAME -> {
+                        type = new Gson().fromJson(message, LoadGameMessage.class);
+                        observer.notify(type);
+                    }
                 }
             });
 
@@ -54,4 +58,30 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
+    public void move(String authToken, int gameID, ChessMove move) throws DataAccessException {
+        try {
+            UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, move);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new DataAccessException("Error: Server error -> " + ex.getMessage());
+        }
+    }
+
+    public void leave(String authToken, int gameID) throws DataAccessException {
+        try {
+            UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new DataAccessException("Error: Server error -> " + ex.getMessage());
+        }
+    }
+
+    public void resign(String authToken, int gameID) throws DataAccessException {
+        try {
+            UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new DataAccessException("Error: Server error -> " + ex.getMessage());
+        }
+    }
 }

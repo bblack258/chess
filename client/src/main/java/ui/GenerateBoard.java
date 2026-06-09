@@ -45,6 +45,10 @@ public class GenerateBoard {
         return outputStream.toString();
     }
 
+    public String highlightBoard(ChessBoard board, String color, ChessPosition start) {
+        return null;
+    }
+
     private void printHeader(ChessGame.TeamColor color) {
         setHeader();
         for (int col = 0; col < TOTAL_NUM_SQUARES; col++) {

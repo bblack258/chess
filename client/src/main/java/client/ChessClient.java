@@ -1,9 +1,13 @@
 package client;
 
+import chess.*;
 import dataaccesserrors.BadRequestException;
 import dataaccesserrors.DataAccessException;
 import model.*;
 import ui.GenerateBoard;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.Arrays;
@@ -17,7 +21,7 @@ public class ChessClient implements ServerMessageObserver {
     private final WebSocketFacade ws;
     private State state;
     private GameData game;
-    private String board;
+    private ChessBoard board;
     private String teamColor;
 
     public ChessClient(String serverURL) throws DataAccessException {
@@ -133,11 +137,10 @@ public class ChessClient implements ServerMessageObserver {
             server.join(join);
 
             state = State.PLAYING_GAME;
-            System.out.printf("Successfully joined game %d%n", listID);
             ws.enterGame(server.getAuth().authToken(), gameID);
             game = gameList.get(listID - 1);
-            board = new GenerateBoard().printBoard(game.game().getBoard(), teamColor);
-            return board;
+            board = game.game().getBoard();
+            return String.format("Successfully joined game %d%n", listID);
         }
         throw new BadRequestException("Failed to join game: must provide ID and color");
     }
@@ -150,8 +153,10 @@ public class ChessClient implements ServerMessageObserver {
             GameList gameList = server.listGames();
             state = State.PLAYING_GAME;
             game = gameList.get(listID - 1);
-            board = new GenerateBoard().printBoard(game.game().getBoard(), "White");
-            return board;
+            teamColor = "White";
+            ws.enterGame(server.getAuth().authToken(), game.gameID());
+            board = game.game().getBoard();
+            return String.format("Observing game: %d", game.gameID());
         }
         throw new BadRequestException("Failed to observe: must provide game ID");
     }
@@ -166,36 +171,53 @@ public class ChessClient implements ServerMessageObserver {
 
     public String redraw() throws DataAccessException {
         notInGame();
-        return board;
+        return new GenerateBoard().printBoard(board, teamColor);
     }
 
     public String leave() throws DataAccessException {
         notInGame();
-        JoinRequest leave = new JoinRequest(teamColor, game.gameID());
-//        server.leave(leave);
+        ws.leave(server.getAuth().authToken(), game.gameID());
         state = State.LOGGED_IN;
         return "You have left game: " + game;
     }
 
     public String makeMove(String... params) throws DataAccessException {
-        isGameOver();
-//      new update game with websocket
+        int startRow = params[0].charAt(1);
+        int startCol = read(params[0].toLowerCase().charAt(0));
+        int endRow = params[1].charAt(1);
+        int endCol = read(params[1].toLowerCase().charAt(0));
+        ChessPiece.PieceType promotionPiece = null;
+        if (params.length >= 3) {
+            String piece = params[2];
+            switch (piece) {
+                case "queen" -> promotionPiece = ChessPiece.PieceType.QUEEN;
+                case "knight" -> promotionPiece = ChessPiece.PieceType.KNIGHT;
+                case "bishop" -> promotionPiece = ChessPiece.PieceType.BISHOP;
+                case "rook" -> promotionPiece = ChessPiece.PieceType.ROOK;
+            }
+        }
+        ChessMove move = new ChessMove(new ChessPosition(startRow,startCol), new ChessPosition(endRow, endCol), promotionPiece);
+
+        ws.move(server.getAuth().authToken(), game.gameID(), move);
         return null;
     }
 
     public String resign() throws DataAccessException {
-        isGameOver();
-        System.out.println("Are you sure you want to resign?");
+        System.out.println("Are you sure you want to resign? [Y/N]");
         Scanner scanner = new Scanner(System.in);
         String line = scanner.nextLine();
-//      update game and change gameOver to true
+        if (line.equalsIgnoreCase("Y")) {
+            ws.resign(server.getAuth().authToken(), game.gameID());
+        }
         return null;
     }
 
     public String highlight(String... params) throws DataAccessException {
         notInGame();
-//      call new function in generate board to highlight given squares for a move set
-        return null;
+        int startRow = params[0].charAt(1);
+        int startCol = read(params[0].charAt(0));
+        ChessPosition startPosition = new ChessPosition(startRow, startCol);
+        return new GenerateBoard().highlightBoard(board,teamColor, startPosition);
     }
 
     public String help() {
@@ -250,16 +272,27 @@ public class ChessClient implements ServerMessageObserver {
         }
     }
 
-    private void isGameOver() throws DataAccessException {
-        notInGame();
-        if (!game.gameOver()) {
-            throw new DataAccessException("Error: game is over");
-        }
-    }
-
     @Override
     public void notify(ServerMessage message) {
-        System.out.println(SET_TEXT_COLOR_MAGENTA + message.toString());
+        if (message instanceof NotificationMessage || message instanceof ErrorMessage) {
+            System.out.println(SET_TEXT_COLOR_MAGENTA + message);
+        } else {
+            System.out.println(new GenerateBoard().printBoard(((LoadGameMessage) message).getGame(), teamColor));
+        }
         System.out.print(SET_TEXT_COLOR_GREEN + "[" + state + "]" + " >>> ");
+    }
+
+    private int read(char col) {
+        switch (col) {
+            case 'a' -> { return 1; }
+            case 'b' -> { return 2; }
+            case 'c' -> { return 3; }
+            case 'd' -> { return 4; }
+            case 'e' -> { return 5; }
+            case 'f' -> { return 6; }
+            case 'g' -> { return 7; }
+            case 'h' -> { return 8; }
+            default -> { return 0; }
+        }
     }
 }
