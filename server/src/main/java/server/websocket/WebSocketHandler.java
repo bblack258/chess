@@ -118,8 +118,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
         } catch (InvalidMoveException | DataAccessException ex) {
             message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
+            connections.broadcast(session, message);
         }
-        connections.broadcast(gameID, session, message);
     }
 
     private void leave(Integer gameID, Session session, String authToken) throws IOException {
