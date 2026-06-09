@@ -147,7 +147,7 @@ public class MySQLGameDAO implements GameDAO {
             String statement;
             ChessGame game = getGames(gameID).game();
             if (game != null) {
-                statement = "UPDATE game SET gameOver = FALSE WHERE gameID = ?";
+                statement = "UPDATE game SET gameOver = TRUE WHERE gameID = ?";
             } else {
                 throw new DataAccessException("Error: invalid update");
             }

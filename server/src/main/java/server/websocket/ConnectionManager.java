@@ -18,7 +18,7 @@ public class ConnectionManager {
     public void remove(Integer gameID, Session session) {
         connections.get(gameID).remove(session, session);
     }
-
+    
     public void broadcast(Session session, ServerMessage message) throws IOException {
         String msg = new Gson().toJson(message);
         if (session.isOpen()) {
