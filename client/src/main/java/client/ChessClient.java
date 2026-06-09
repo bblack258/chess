@@ -4,22 +4,25 @@ import dataaccesserrors.BadRequestException;
 import dataaccesserrors.DataAccessException;
 import model.*;
 import ui.GenerateBoard;
+import websocket.messages.ServerMessage;
 
 import java.util.Arrays;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class ChessClient {
+public class ChessClient implements ServerMessageObserver {
 
     private final ServerFacade server;
+    private final WebSocketFacade ws;
     private State state;
     private GameData game;
     private String board;
     private String teamColor;
 
-    public ChessClient(String serverURL) {
+    public ChessClient(String serverURL) throws DataAccessException {
         server = new ServerFacade(serverURL);
+        ws = new WebSocketFacade(serverURL, this);
         state = State.LOGGED_OUT;
     }
 
@@ -128,8 +131,10 @@ public class ChessClient {
             teamColor = params[1].toUpperCase();
             JoinRequest join = new JoinRequest(teamColor, gameID);
             server.join(join);
+
             state = State.PLAYING_GAME;
             System.out.printf("Successfully joined game %d%n", listID);
+            ws.enterGame(server.getAuth().authToken(), gameID);
             game = gameList.get(listID - 1);
             board = new GenerateBoard().printBoard(game.game().getBoard(), teamColor);
             return board;
@@ -250,5 +255,11 @@ public class ChessClient {
         if (!game.gameOver()) {
             throw new DataAccessException("Error: game is over");
         }
+    }
+
+    @Override
+    public void notify(ServerMessage message) {
+        System.out.println(SET_TEXT_COLOR_MAGENTA + message.toString());
+        System.out.print(SET_TEXT_COLOR_GREEN + "[" + state + "]" + " >>> ");
     }
 }

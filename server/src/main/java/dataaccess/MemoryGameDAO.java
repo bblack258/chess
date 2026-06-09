@@ -1,6 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
+import dataaccesserrors.DataAccessException;
 import model.GameData;
 
 import java.util.ArrayList;
@@ -55,6 +56,16 @@ public class MemoryGameDAO implements GameDAO {
                 }
             }
         }
+    }
+
+    @Override
+    public void updateGame(int gameID, ChessGame game) throws DataAccessException {
+
+    }
+
+    @Override
+    public void finishGame(int gameID) throws DataAccessException {
+
     }
 
     @Override

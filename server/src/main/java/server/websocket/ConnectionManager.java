@@ -1,5 +1,6 @@
 package server.websocket;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.*;
 
@@ -18,17 +19,10 @@ public class ConnectionManager {
     }
 
     public void broadcast(Integer gameID, Session exclude, ServerMessage message) throws IOException {
+        String msg = new Gson().toJson(message);
         for (Session c : connections.get(gameID).values()) {
             if (c.isOpen()) {
                 if (!c.equals(exclude)) {
-                    String msg = "Error: no message to broadcast";
-                    if (message instanceof ErrorMessage) {
-                        msg = ((ErrorMessage) message).getError();
-                    } else if (message instanceof NotificationMessage) {
-                        msg = ((NotificationMessage) message).getNotification();
-                    } else if (message instanceof LoadGameMessage) {
-                        msg = ((LoadGameMessage) message).getGame();
-                    }
                     c.getRemote().sendString(msg);
                 }
             }

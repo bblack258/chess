@@ -3,9 +3,12 @@ package client;
 import com.google.gson.Gson;
 import dataaccesserrors.DataAccessException;
 import dataaccesserrors.ErrorMessage;
+import jakarta.websocket.Session;
 import model.*;
+import websocket.messages.ServerMessage;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -18,6 +21,10 @@ public class ServerFacade {
 
     public ServerFacade(String serverURL) {
         this.serverURL = serverURL;
+    }
+
+    public AuthData getAuth() {
+        return auth;
     }
 
     public AuthData register(UserData user) throws DataAccessException {
