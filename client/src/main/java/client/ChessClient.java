@@ -185,6 +185,7 @@ public class ChessClient implements ServerMessageObserver {
     }
 
     public String makeMove(String... params) throws DataAccessException {
+        notInGame();
         int startCol = read(params[0].charAt(0));
         int startRow = Character.getNumericValue(params[0].charAt(1));
         int endCol = read(params[1].charAt(0));
@@ -209,6 +210,7 @@ public class ChessClient implements ServerMessageObserver {
     }
 
     public String resign() throws DataAccessException {
+        notInGame();
         System.out.println("Are you sure you want to resign? [Y/N]");
         Scanner scanner = new Scanner(System.in);
         String line = scanner.nextLine();

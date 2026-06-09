@@ -100,12 +100,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             if (game == null) {
                 throw new DataAccessException("Error: Invalid game ID");
             }
-            checkObserver(user, game);
-            checkTurn(user, game);
-            checkPiece(user, game, move.getStartPosition());
             if (game.gameOver()) {
                 throw new DataAccessException("Error: Game is over");
             }
+            checkObserver(user, game);
+            checkTurn(user, game);
+            checkPiece(user, game, move.getStartPosition());
 
             if (game.game().validMoves(move.getStartPosition()).contains(move)) {
                 game.game().makeMove(move);
