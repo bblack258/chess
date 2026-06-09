@@ -37,7 +37,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @Override
-    public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
+    public void handleMessage(@NotNull WsMessageContext ctx) {
         try {
             UserGameCommand cmd = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (cmd.getCommandType()) {
@@ -47,7 +47,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case RESIGN -> resign(cmd.getGameID(), ctx.session, cmd.getAuthToken());
             }
         } catch (IOException ex) {
-            ex.printStackTrace(); // Handle this better
+            throw new RuntimeException(ex.getMessage());
         }
     }
 
@@ -140,29 +140,38 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 gameMemory.updateGame(gameID, ChessGame.TeamColor.WHITE, null);
             } else if (Objects.equals(game.blackUsername(), user)) {
                 gameMemory.updateGame(gameID, ChessGame.TeamColor.BLACK, null);
-            } else {
-                throw new DataAccessException("Error: Not a valid leave request");
             }
             connections.remove(gameID, session);
             message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                     String.format("%s has left the game", user));
+            connections.broadcast(gameID, session, message);
         } catch (DataAccessException ex) {
             message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
+            connections.broadcast(session, message);
         }
-        connections.broadcast(gameID, session, message);
     }
 
     private void resign(Integer gameID, Session session, String authToken) throws IOException {
         ServerMessage message;
         try {
             String user = getUsername(authToken);
+            GameData game = gameMemory.getGames(gameID);
+            if (game == null) {
+                throw new DataAccessException("Error: Invalid game");
+            }
+            checkObserver(user, game);
+            if (game.gameOver()) {
+                throw new DataAccessException("Error: Game is over");
+            }
+
             gameMemory.finishGame(gameID);
             message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                     String.format("%s has resigned the game", user));
+            connections.broadcast(gameID, null, message);
         } catch (DataAccessException ex) {
             message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
+            connections.broadcast(session, message);
         }
-        connections.broadcast(gameID, null, message);
     }
 
     private String getUsername(String authToken) throws DataAccessException {
