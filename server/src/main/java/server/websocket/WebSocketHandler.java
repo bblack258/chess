@@ -1,13 +1,12 @@
 package server.websocket;
 
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.InvalidMoveException;
+import chess.*;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccesserrors.DataAccessException;
 import io.javalin.websocket.*;
+import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
@@ -77,6 +76,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } catch (DataAccessException ex) {
             message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
             connections.broadcast(session, message);
+            return;
         }
 
         try {
@@ -92,23 +92,32 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         ServerMessage message;
         try {
             String user = getUsername(authToken);
+            if (user == null) {
+                throw new DataAccessException("Error: Unauthorized request");
+            }
             GameData game = gameMemory.getGames(gameID);
             if (game == null) {
-                throw new DataAccessException("Error: Not a valid game");
+                throw new DataAccessException("Error: Invalid game ID");
             }
+            checkTurn(user, game);
+            checkPiece(user, game, move.getStartPosition());
+
             if (game.game().validMoves(move.getStartPosition()).contains(move)) {
                 game.game().makeMove(move);
                 gameMemory.updateGame(gameID, game.game());
                 message = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game.game().getBoard());
                 connections.broadcast(gameID, null, message);
-                // Finish this out - notify users that a move was made, check for check, etc.
+                message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                        String.format("%s made move: " + move.readable(), user));
+                connections.broadcast(gameID, session, message);
+
+                ChessGame.TeamColor turn = game.game().getTeamTurn();
+                checkConditions(gameID, game.game(), turn);
             } else {
                 throw new DataAccessException("Error: Invalid move");
             }
-        } catch (DataAccessException ex) {
+        } catch (InvalidMoveException | DataAccessException ex) {
             message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
-        } catch (InvalidMoveException e) {
-            throw new DataAccessException("Error: Invalid move");
         }
         connections.broadcast(gameID, session, message);
     }
@@ -148,6 +157,48 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private String getUsername(String authToken) throws DataAccessException {
-        return authMemory.getAuth(authToken).username();
+        AuthData authData = authMemory.getAuth(authToken);
+        if (authData == null) {
+            throw new DataAccessException("Error: Unauthorized request");
+        }
+        return authData.username();
+    }
+
+    private void checkTurn(String username, GameData game) throws DataAccessException {
+        ChessGame.TeamColor turn = game.game().getTeamTurn();
+        if ((Objects.equals(game.whiteUsername(), username) && turn == ChessGame.TeamColor.BLACK) ||
+                (Objects.equals(game.blackUsername(), username) && turn == ChessGame.TeamColor.WHITE)) {
+            throw new DataAccessException("Error: not your turn");
+        }
+    }
+
+    private void checkPiece(String username, GameData game, ChessPosition start) throws DataAccessException {
+        ChessPiece piece = game.game().getBoard().getPiece(start);
+        if (piece == null) {
+            throw new DataAccessException("Error: not a valid piece");
+        }
+        if ((Objects.equals(game.whiteUsername(), username) && piece.getTeamColor() == ChessGame.TeamColor.BLACK) ||
+                (Objects.equals(game.blackUsername(), username) && piece.getTeamColor() == ChessGame.TeamColor.WHITE)) {
+            throw new DataAccessException("Error: not your piece");
+        }
+    }
+
+    private void checkConditions(int gameID, ChessGame game, ChessGame.TeamColor team) throws IOException, DataAccessException {
+        ServerMessage message = null;
+        ChessGame.TeamColor otherTeam = ChessGame.TeamColor.WHITE;
+        if (team == ChessGame.TeamColor.WHITE) {
+            otherTeam = ChessGame.TeamColor.BLACK;
+        }
+        if (game.isInCheckmate(otherTeam)) {
+            message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                    String.format("%s is in checkmate", otherTeam));
+            gameMemory.finishGame(gameID);
+        } else if (game.isInCheck(otherTeam)) {
+            message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                    String.format("%s is in check", otherTeam));
+        } else if (game.isInStalemate(otherTeam) || game.isInStalemate(team)) {
+            message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Stalemate!");
+        }
+        connections.broadcast(gameID, null, message);
     }
 }
