@@ -3,14 +3,14 @@ package websocket.messages;
 import java.util.Objects;
 
 public class NotificationMessage extends ServerMessage {
-    String notification;
+    String message;
 
     public NotificationMessage(ServerMessageType type, String notification) {
         super(type);
-        this.notification = notification;
+        this.message = notification;
     }
 
-    public String getNotification() {return notification;}
+    public String getNotification() {return message;}
 
     @Override
     public boolean equals(Object o) {
@@ -21,11 +21,11 @@ public class NotificationMessage extends ServerMessage {
             return false;
         }
         NotificationMessage that = (NotificationMessage) o;
-        return Objects.equals(notification, that.notification);
+        return Objects.equals(message, that.message);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), notification);
+        return Objects.hash(super.hashCode(), message);
     }
 }

@@ -4,10 +4,7 @@ import com.google.gson.Gson;
 import dataaccesserrors.DataAccessException;
 import jakarta.websocket.*;
 import websocket.commands.UserGameCommand;
-import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -36,6 +33,7 @@ public class WebSocketFacade extends Endpoint {
                         case ERROR -> type = new Gson().fromJson(message, ErrorMessage.class);
                         case LOAD_GAME -> type = new Gson().fromJson(message, LoadGameMessage.class);
                     }
+                    // Finish this out
                 }
             });
 

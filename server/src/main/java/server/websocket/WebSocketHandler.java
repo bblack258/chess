@@ -75,6 +75,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
         }
         connections.broadcast(gameID, session, message);
+
+        try {
+            GameData game = gameMemory.getGames(gameID);
+            message = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game.game().getBoard());
+        } catch (DataAccessException ex) {
+            message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
+        }
+        connections.broadcast(session, message);
     }
 
     private void makeMove(Integer gameID, Session session, ChessMove move, String authToken) throws IOException, DataAccessException {
@@ -88,8 +96,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             if (game.game().validMoves(move.getStartPosition()).contains(move)) {
                 game.game().makeMove(move);
                 gameMemory.updateGame(gameID, game.game());
-                message = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
-                        new Gson().toJson(game.game()));
+                message = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game.game().getBoard());
                 connections.broadcast(gameID, null, message);
                 // Finish this out - notify users that a move was made, check for check, etc.
             } else {
