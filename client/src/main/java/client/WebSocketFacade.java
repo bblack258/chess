@@ -23,24 +23,18 @@ public class WebSocketFacade extends Endpoint {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
 
-            this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
-                ServerMessage type = new Gson().fromJson(message, ServerMessage.class);
-                switch (type.getServerMessageType()) {
-                    case NOTIFICATION -> {
-                        type = new Gson().fromJson(message, NotificationMessage.class);
-                        observer.notify(type);
+            this.session.addMessageHandler( new MessageHandler.Whole<String>() {
+                @Override
+                public void onMessage(String message) {
+                    ServerMessage type = new Gson().fromJson(message, ServerMessage.class);
+                    switch (type.getServerMessageType()) {
+                        case NOTIFICATION -> type = new Gson().fromJson(message, NotificationMessage.class);
+                        case ERROR -> type = new Gson().fromJson(message, ErrorMessage.class);
+                        case LOAD_GAME -> type = new Gson().fromJson(message, LoadGameMessage.class);
                     }
-                    case ERROR -> {
-                        type = new Gson().fromJson(message, ErrorMessage.class);
-                        observer.notify(type);
-                    }
-                    case LOAD_GAME -> {
-                        type = new Gson().fromJson(message, LoadGameMessage.class);
-                        observer.notify(type);
-                    }
+                    observer.notify(type);
                 }
             });
-
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new DataAccessException("Error: Server error " + ex.getMessage());
         }

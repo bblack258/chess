@@ -36,13 +36,16 @@ public class ChessClient implements ServerMessageObserver {
 
         Scanner scanner = new Scanner(System.in);
         String result = "";
-        while (!result.equals("quit")) {
+        String quit = "quit";
+        while (!quit.equals(result)) {
             System.out.print(SET_TEXT_COLOR_GREEN + "[" + state + "]" + " >>> ");
             String line = scanner.nextLine();
 
             try {
                 result = eval(line);
-                System.out.println(SET_TEXT_COLOR_BLUE + result);
+                if (result != null) {
+                    System.out.println(SET_TEXT_COLOR_BLUE + result);
+                }
             } catch (NumberFormatException | IndexOutOfBoundsException ex) {
                 System.out.println(SET_TEXT_COLOR_BLUE + "Please enter a valid ID");
             } catch (Exception ex) {
@@ -70,9 +73,9 @@ public class ChessClient implements ServerMessageObserver {
                 case "logout" -> logout();
                 case "redraw" -> redraw();
                 case "leave" -> leave();
-                case "makeMove" -> makeMove();
+                case "makemove" -> makeMove(params);
                 case "resign" -> resign();
-                case "highlight" -> highlight();
+                case "highlight" -> highlight(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -178,14 +181,14 @@ public class ChessClient implements ServerMessageObserver {
         notInGame();
         ws.leave(server.getAuth().authToken(), game.gameID());
         state = State.LOGGED_IN;
-        return "You have left game: " + game;
+        return "You have left the game";
     }
 
     public String makeMove(String... params) throws DataAccessException {
-        int startRow = params[0].charAt(1);
-        int startCol = read(params[0].toLowerCase().charAt(0));
-        int endRow = params[1].charAt(1);
-        int endCol = read(params[1].toLowerCase().charAt(0));
+        int startCol = read(params[0].charAt(0));
+        int startRow = Character.getNumericValue(params[0].charAt(1));
+        int endCol = read(params[1].charAt(0));
+        int endRow = Character.getNumericValue(params[1].charAt(1));
         ChessPiece.PieceType promotionPiece = null;
         if (params.length >= 3) {
             String piece = params[2];
@@ -217,7 +220,7 @@ public class ChessClient implements ServerMessageObserver {
         int startRow = params[0].charAt(1);
         int startCol = read(params[0].charAt(0));
         ChessPosition startPosition = new ChessPosition(startRow, startCol);
-        return new GenerateBoard().highlightBoard(board,teamColor, startPosition);
+        return new GenerateBoard().printBoard(board,teamColor);
     }
 
     public String help() {
@@ -274,10 +277,12 @@ public class ChessClient implements ServerMessageObserver {
 
     @Override
     public void notify(ServerMessage message) {
-        if (message instanceof NotificationMessage || message instanceof ErrorMessage) {
-            System.out.println(SET_TEXT_COLOR_MAGENTA + message);
+        if (message instanceof NotificationMessage) {
+            System.out.println(SET_TEXT_COLOR_MAGENTA + ((NotificationMessage) message).getNotification());
+        } else if (message instanceof ErrorMessage) {
+            System.out.println(SET_TEXT_COLOR_MAGENTA + ((ErrorMessage) message).getError());
         } else {
-            System.out.println(new GenerateBoard().printBoard(((LoadGameMessage) message).getGame(), teamColor));
+            System.out.println("\n" + new GenerateBoard().printBoard(((LoadGameMessage) message).getGame(), teamColor));
         }
         System.out.print(SET_TEXT_COLOR_GREEN + "[" + state + "]" + " >>> ");
     }
