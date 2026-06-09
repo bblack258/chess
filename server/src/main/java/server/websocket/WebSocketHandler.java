@@ -63,7 +63,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             String user = getUsername(authToken);
             connections.add(gameID, session);
             String join;
-            if (gameMemory.getGames(gameID).whiteUsername().equals(user)) {
+            if (gameMemory.getGames(gameID) == null) {
+                throw new DataAccessException("Error: Invalid game ID");
+            } else if (gameMemory.getGames(gameID).whiteUsername().equals(user)) {
                 join = String.format("%s has joined the game as white player", user);
             } else if (gameMemory.getGames(gameID).blackUsername().equals(user)) {
                 join = String.format("%s has joined the game as black player", user);
@@ -71,10 +73,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 join = String.format("%s is observing the game", user);
             }
             message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, join);
+            connections.broadcast(gameID, session, message);
         } catch (DataAccessException ex) {
             message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
+            connections.broadcast(session, message);
         }
-        connections.broadcast(gameID, session, message);
 
         try {
             GameData game = gameMemory.getGames(gameID);

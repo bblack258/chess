@@ -3,14 +3,14 @@ package websocket.messages;
 import java.util.Objects;
 
 public class ErrorMessage extends ServerMessage {
-    String error;
+    String errorMessage;
 
-    public ErrorMessage(ServerMessageType type, String error) {
+    public ErrorMessage(ServerMessageType type, String errorMessage) {
         super(type);
-        this.error = error;
+        this.errorMessage = errorMessage;
     }
 
-    public String getError() {return error;}
+    public String getError() {return errorMessage;}
 
     @Override
     public boolean equals(Object o) {
@@ -21,11 +21,11 @@ public class ErrorMessage extends ServerMessage {
             return false;
         }
         ErrorMessage that = (ErrorMessage) o;
-        return Objects.equals(error, that.error);
+        return Objects.equals(errorMessage, that.errorMessage);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), error);
+        return Objects.hash(super.hashCode(), errorMessage);
     }
 }
