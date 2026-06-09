@@ -1,13 +1,12 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.List;
 
 import static ui.EscapeSequences.*;
 
@@ -46,7 +45,27 @@ public class GenerateBoard {
     }
 
     public String highlightBoard(ChessBoard board, String color, ChessPosition start) {
-        return null;
+        ChessGame.TeamColor teamColor = colorToTeam(color);
+        ChessPiece piece = board.getPiece(start);
+        Collection<ChessMove> possible = List.of();
+        if (piece != null) {
+            possible = piece.pieceMoves(board, start);
+        }
+
+        for (int row = 0; row < TOTAL_NUM_SQUARES; row++) {
+            if (row == 0) {
+                printHeader(teamColor);
+            } else if (row == TOTAL_NUM_SQUARES - 1) {
+                printHeader(teamColor);
+            } else {
+                printLine(row, board, teamColor, start, possible);
+                setBlack();
+            }
+
+            setBKG();
+            out.println();
+        }
+        return outputStream.toString();
     }
 
     private void printHeader(ChessGame.TeamColor color) {
@@ -82,6 +101,43 @@ public class GenerateBoard {
                 printPiece(board, row, col, color);
             } else {
                 setGrey();
+                printPiece(board, row, col, color);
+            }
+        }
+    }
+
+    private void printLine(int row, ChessBoard board, ChessGame.TeamColor color, ChessPosition start, Collection<ChessMove> possible) {
+        for (int col = 0; col < TOTAL_NUM_SQUARES; col++) {
+            boolean colored = false;
+            if (col == 0) {
+                printSide(row, color);
+            } else if (col == TOTAL_NUM_SQUARES - 1) {
+                printSide(row, color);
+            } else if ((9 - start.getRow() == row && start.getColumn() == col && color == ChessGame.TeamColor.WHITE) ||
+                    (start.getRow() == row && 9 -start.getColumn() == col && color == ChessGame.TeamColor.BLACK)) {
+                setYellow();
+                printPiece(board, row, col, color);
+            } else if ((row % 2 == 1 && col % 2 == 1) || (row % 2 == 0 && col % 2 == 0)) {
+                for (ChessMove move : possible) {
+                    if ((9 - move.getEndPosition().getRow() == row && move.getEndPosition().getColumn() == col &&
+                            color == ChessGame.TeamColor.WHITE) || (color == ChessGame.TeamColor.BLACK &&
+                            move.getEndPosition().getRow() == row && move.getEndPosition().getColumn() == 9 - col)) {
+                        setGreen();
+                        colored = true;
+                    }
+                }
+                if (!colored) { setWhite(); }
+                printPiece(board, row, col, color);
+            } else {
+                for (ChessMove move : possible) {
+                    if ((9 - move.getEndPosition().getRow() == row && move.getEndPosition().getColumn() == col &&
+                            color == ChessGame.TeamColor.WHITE) || (color == ChessGame.TeamColor.BLACK &&
+                            move.getEndPosition().getRow() == row && move.getEndPosition().getColumn() == 9 - col)) {
+                        setDarkGreen();
+                        colored = true;
+                    }
+                }
+                if (!colored) { setGrey(); }
                 printPiece(board, row, col, color);
             }
         }
@@ -142,6 +198,21 @@ public class GenerateBoard {
 
     private void setGrey() {
         out.print(SET_BG_COLOR_LIGHT_GREY);
+        out.print(SET_TEXT_COLOR_BLACK);
+    }
+
+    private void setGreen() {
+        out.print(SET_BG_COLOR_GREEN);
+        out.print(SET_TEXT_COLOR_BLACK);
+    }
+
+    private void setDarkGreen() {
+        out.print(SET_BG_COLOR_DARK_GREEN);
+        out.print(SET_TEXT_COLOR_BLACK);
+    }
+
+    private void setYellow() {
+        out.print(SET_BG_COLOR_YELLOW);
         out.print(SET_TEXT_COLOR_BLACK);
     }
 

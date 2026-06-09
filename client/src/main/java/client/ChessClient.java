@@ -220,10 +220,10 @@ public class ChessClient implements ServerMessageObserver {
 
     public String highlight(String... params) throws DataAccessException {
         notInGame();
-        int startRow = params[0].charAt(1);
         int startCol = read(params[0].charAt(0));
+        int startRow = Character.getNumericValue(params[0].charAt(1));
         ChessPosition startPosition = new ChessPosition(startRow, startCol);
-        return new GenerateBoard().printBoard(board,teamColor);
+        return new GenerateBoard().highlightBoard(board,teamColor, startPosition);
     }
 
     public String help() {

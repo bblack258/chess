@@ -222,6 +222,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     String.format("%s is in check", otherTeam));
         } else if (game.isInStalemate(otherTeam) || game.isInStalemate(team)) {
             message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Stalemate!");
+            gameMemory.finishGame(gameID);
         }
         return message;
     }
