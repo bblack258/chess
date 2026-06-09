@@ -44,12 +44,13 @@ public class GenerateBoard {
         return outputStream.toString();
     }
 
-    public String highlightBoard(ChessBoard board, String color, ChessPosition start) {
+    public String highlightBoard(ChessGame game, String color, ChessPosition start) {
+        ChessBoard board = game.getBoard();
         ChessGame.TeamColor teamColor = colorToTeam(color);
         ChessPiece piece = board.getPiece(start);
         Collection<ChessMove> possible = List.of();
         if (piece != null) {
-            possible = piece.pieceMoves(board, start);
+            possible = game.validMoves(start);
         }
 
         for (int row = 0; row < TOTAL_NUM_SQUARES; row++) {

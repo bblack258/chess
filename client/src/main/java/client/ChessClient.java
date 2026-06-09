@@ -201,6 +201,7 @@ public class ChessClient implements ServerMessageObserver {
                 case "knight" -> promotionPiece = ChessPiece.PieceType.KNIGHT;
                 case "bishop" -> promotionPiece = ChessPiece.PieceType.BISHOP;
                 case "rook" -> promotionPiece = ChessPiece.PieceType.ROOK;
+                default -> throw new BadRequestException("Error: please enter a valid promotion piece after the move");
             }
         }
         ChessMove move = new ChessMove(new ChessPosition(startRow,startCol), new ChessPosition(endRow, endCol), promotionPiece);
@@ -225,7 +226,7 @@ public class ChessClient implements ServerMessageObserver {
         int startCol = read(params[0].charAt(0));
         int startRow = Character.getNumericValue(params[0].charAt(1));
         ChessPosition startPosition = new ChessPosition(startRow, startCol);
-        return new GenerateBoard().highlightBoard(board,teamColor, startPosition);
+        return new GenerateBoard().highlightBoard(game.game(),teamColor, startPosition);
     }
 
     public String help() {
@@ -288,6 +289,10 @@ public class ChessClient implements ServerMessageObserver {
             System.out.println(SET_TEXT_COLOR_MAGENTA + ((ErrorMessage) message).getError());
         } else {
             board = ((LoadGameMessage) message).getGame();
+            ChessGame chess = new ChessGame();
+            chess.setBoard(board);
+            chess.setTeamTurn(game.game().getTeamTurn());
+            game = new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), chess, game.gameOver());
             System.out.println("\n" + new GenerateBoard().printBoard(((LoadGameMessage) message).getGame(), teamColor));
         }
         System.out.print(SET_TEXT_COLOR_GREEN + "[" + state + "]" + " >>> ");

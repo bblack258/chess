@@ -210,16 +210,18 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private NotificationMessage checkConditions(int gameID, ChessGame game, ChessGame.TeamColor otherTeam) throws DataAccessException {
         NotificationMessage message = null;
         ChessGame.TeamColor team = ChessGame.TeamColor.WHITE;
+        String otherUser = gameMemory.getGames(gameID).blackUsername();
         if (otherTeam == ChessGame.TeamColor.WHITE) {
             team = ChessGame.TeamColor.BLACK;
+            otherUser = gameMemory.getGames(gameID).whiteUsername();
         }
         if (game.isInCheckmate(otherTeam)) {
             message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                    String.format("%s is in checkmate", otherTeam));
+                    String.format("%s is in checkmate", otherUser));
             gameMemory.finishGame(gameID);
         } else if (game.isInCheck(otherTeam)) {
             message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                    String.format("%s is in check", otherTeam));
+                    String.format("%s is in check", otherUser));
         } else if (game.isInStalemate(otherTeam) || game.isInStalemate(team)) {
             message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Stalemate!");
             gameMemory.finishGame(gameID);
